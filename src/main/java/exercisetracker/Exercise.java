@@ -15,6 +15,8 @@ public class Exercise {
     private String name;
     private String primaryMuscleGroup;
 
+    Exercise() {}
+
     Exercise(String name, String primaryMuscleGroup) {
         this.name = name;
         this.primaryMuscleGroup = primaryMuscleGroup;
