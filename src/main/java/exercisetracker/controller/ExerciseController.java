@@ -1,19 +1,18 @@
-package exercisetracker;
+package exercisetracker.controller;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
-import org.apache.coyote.Response;
+import exercisetracker.exception.ExerciseNotFoundException;
+import exercisetracker.repository.ExerciseRepository;
+import exercisetracker.assembler.ExerciseModelAssembler;
+import exercisetracker.model.Exercise;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.hateoas.mediatype.problem.Problem;
-import org.springframework.hateoas.MediaTypes;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,7 +34,7 @@ public class ExerciseController {
     }
 
     @GetMapping("/exercises")
-    CollectionModel<EntityModel<Exercise>> all() {
+    public CollectionModel<EntityModel<Exercise>> all() {
 
         List<EntityModel<Exercise>> exercises = exerciseRepository.findAll().stream()
                 .map(assembler::toModel)
@@ -46,7 +45,7 @@ public class ExerciseController {
     }
 
     @GetMapping("/exercises/{id}")
-    EntityModel<Exercise> one(@PathVariable Long id) {
+    public EntityModel<Exercise> one(@PathVariable Long id) {
 
         Exercise order = exerciseRepository.findById(id) //
                 .orElseThrow(() -> new ExerciseNotFoundException(id));

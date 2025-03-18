@@ -1,5 +1,7 @@
-package exercisetracker;
+package exercisetracker.bootstrap;
 
+import exercisetracker.model.Exercise;
+import exercisetracker.repository.ExerciseRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;

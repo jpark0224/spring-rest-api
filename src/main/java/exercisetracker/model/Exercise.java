@@ -1,11 +1,9 @@
-package exercisetracker;
+package exercisetracker.model;
 
+import java.util.List;
 import java.util.Objects;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 public class Exercise {
@@ -14,10 +12,12 @@ public class Exercise {
 
     private String name;
     private String primaryMuscleGroup;
+    @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Set> sets;
 
     Exercise() {}
 
-    Exercise(String name, String primaryMuscleGroup) {
+    public Exercise(String name, String primaryMuscleGroup) {
         this.name = name;
         this.primaryMuscleGroup = primaryMuscleGroup;
     }
