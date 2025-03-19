@@ -1,5 +1,6 @@
 package exercisetracker.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,14 +13,25 @@ public class Exercise {
 
     private String name;
     private String primaryMuscleGroup;
+
+    @ManyToOne
+    @JoinColumn(name = "log_id", nullable = false)
+    private Log log;
+
     @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Set> sets;
+    private List<Set> sets = new ArrayList<>();
 
     Exercise() {}
 
-    public Exercise(String name, String primaryMuscleGroup) {
+    public Exercise(String name, String primaryMuscleGroup, Log log) {
         this.name = name;
         this.primaryMuscleGroup = primaryMuscleGroup;
+        this.log = log;
+    }
+
+    public void addSet(Set set) {
+        sets.add(set);
+        set.setExercise(this); // Set back-reference
     }
 
     public Long getId() {
@@ -40,6 +52,10 @@ public class Exercise {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setLog(Log log) {
+        this.log = log;
     }
 
     public void setPrimaryMuscleGroup(String primaryMuscleGroup) {
