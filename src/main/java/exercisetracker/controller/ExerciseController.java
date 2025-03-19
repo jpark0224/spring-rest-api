@@ -47,10 +47,10 @@ public class ExerciseController {
     @GetMapping("/exercises/{id}")
     public EntityModel<Exercise> one(@PathVariable Long id) {
 
-        Exercise order = exerciseRepository.findById(id) //
+        Exercise exercise = exerciseRepository.findById(id) //
                 .orElseThrow(() -> new ExerciseNotFoundException(id));
 
-        return assembler.toModel(order);
+        return assembler.toModel(exercise);
     }
 
     @PostMapping("/exercises")

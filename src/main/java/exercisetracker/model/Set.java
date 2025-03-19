@@ -20,7 +20,7 @@ public class Set {
 
     Set() {}
 
-    Set(Integer reps, Integer weight, Exercise exercise) {
+    public Set(Integer reps, Integer weight, Exercise exercise) {
         this.reps = reps;
         this.weight = weight;
         this.exercise = exercise;
