@@ -8,7 +8,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import exercisetracker.exception.ExerciseTemplateNotFoundException;
 import exercisetracker.repository.ExerciseTemplateRepository;
 import exercisetracker.assembler.ExerciseModelAssembler;
-import exercisetracker.model.Exercise;
+import exercisetracker.model.ExerciseTemplate;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -34,9 +34,9 @@ public class ExerciseTemplateController {
     }
 
     @GetMapping("/exercises")
-    public CollectionModel<EntityModel<Exercise>> all() {
+    public CollectionModel<EntityModel<ExerciseTemplate>> all() {
 
-        List<EntityModel<Exercise>> exercises = exerciseTemplateRepository.findAll().stream()
+        List<EntityModel<ExerciseTemplate>> exercises = exerciseTemplateRepository.findAll().stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
@@ -45,38 +45,38 @@ public class ExerciseTemplateController {
     }
 
     @GetMapping("/exercises/{id}")
-    public EntityModel<Exercise> one(@PathVariable Long id) {
+    public EntityModel<ExerciseTemplate> one(@PathVariable Long id) {
 
-        Exercise exercise = exerciseTemplateRepository.findById(id) //
+        ExerciseTemplate exerciseTemplate = exerciseTemplateRepository.findById(id) //
                 .orElseThrow(() -> new ExerciseTemplateNotFoundException(id));
 
-        return assembler.toModel(exercise);
+        return assembler.toModel(exerciseTemplate);
     }
 
     @PostMapping("/exercises")
-    ResponseEntity<EntityModel<Exercise>> newExercise(@RequestBody Exercise exercise) {
+    ResponseEntity<EntityModel<ExerciseTemplate>> newExercise(@RequestBody ExerciseTemplate exerciseTemplate) {
 
-        Exercise newExercise = exerciseTemplateRepository.save(exercise);
+        ExerciseTemplate newExerciseTemplate = exerciseTemplateRepository.save(exerciseTemplate);
 
         return ResponseEntity //
-                .created(linkTo(methodOn(ExerciseTemplateController.class).one(newExercise.getId())).toUri()) //
-                .body(assembler.toModel(newExercise));
+                .created(linkTo(methodOn(ExerciseTemplateController.class).one(newExerciseTemplate.getId())).toUri()) //
+                .body(assembler.toModel(newExerciseTemplate));
     }
 
     @PutMapping("/exercises/{id}")
-    ResponseEntity<?> replaceExercise(@RequestBody Exercise newExercise, @PathVariable Long id) {
+    ResponseEntity<?> replaceExercise(@RequestBody ExerciseTemplate newExerciseTemplate, @PathVariable Long id) {
 
-        Exercise updatedExercise = exerciseTemplateRepository.findById(id)
+        ExerciseTemplate updatedExerciseTemplate = exerciseTemplateRepository.findById(id)
                 .map(exercise -> {
-                    exercise.setName(newExercise.getName());
-                    exercise.setPrimaryMuscleGroup(newExercise.getPrimaryMuscleGroup());
+                    exercise.setName(newExerciseTemplate.getName());
+                    exercise.setPrimaryMuscleGroup(newExerciseTemplate.getPrimaryMuscleGroup());
                     return exerciseTemplateRepository.save(exercise);
                 })
                 .orElseGet(() -> {
-                    return exerciseTemplateRepository.save(newExercise);
+                    return exerciseTemplateRepository.save(newExerciseTemplate);
                 });
 
-        EntityModel<Exercise> entityModel = assembler.toModel(updatedExercise);
+        EntityModel<ExerciseTemplate> entityModel = assembler.toModel(updatedExerciseTemplate);
 
         return ResponseEntity
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())

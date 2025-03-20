@@ -1,8 +1,10 @@
 package exercisetracker.repository;
 
-import exercisetracker.model.Exercise;
+import exercisetracker.model.ExerciseTemplate;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface ExerciseTemplateRepository extends JpaRepository<Exercise, Long> {
+@Repository
+public interface ExerciseTemplateRepository extends JpaRepository<ExerciseTemplate, Long> {
 
 }

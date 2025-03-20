@@ -26,7 +26,7 @@ public class Log {
     private String name;
 
     @OneToMany(mappedBy = "log", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Exercise> exercises = new ArrayList<>();
+    private List<ExerciseCopy> exerciseCopies = new ArrayList<>();
 
     Log() {
         this.name = "Awesome Workout";
@@ -34,11 +34,6 @@ public class Log {
 
     public Log(String name) {
         this.name = (name != null && !name.isEmpty()) ? name : "Awesome Workout";
-    }
-
-    public void addExercise(Exercise exercise) {
-        exercises.add(exercise);
-        exercise.setLog(this);
     }
 
     public Long getId() {
@@ -88,12 +83,12 @@ public class Log {
         this.name = (name != null && !name.isEmpty()) ? name : "Awesome Workout";
     }
 
-    public List<Exercise> getExercises() {
-        return exercises;
+    public List<ExerciseCopy> getExercises() {
+        return exerciseCopies;
     }
 
-    public void setExercises(List<Exercise> exercises) {
-        this.exercises = exercises;
+    public void setExercises(List<ExerciseCopy> exerciseCopies) {
+        this.exerciseCopies = exerciseCopies;
     }
 
     @Override
@@ -101,12 +96,12 @@ public class Log {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Log log = (Log) o;
-        return Objects.equals(id, log.id) && Objects.equals(timestamp, log.timestamp) && Objects.equals(endTime, log.endTime) && Objects.equals(duration, log.duration) && Objects.equals(name, log.name) && Objects.equals(exercises, log.exercises);
+        return Objects.equals(id, log.id) && Objects.equals(timestamp, log.timestamp) && Objects.equals(endTime, log.endTime) && Objects.equals(duration, log.duration) && Objects.equals(name, log.name) && Objects.equals(exerciseCopies, log.exerciseCopies);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, timestamp, endTime, duration, name, exercises);
+        return Objects.hash(id, timestamp, endTime, duration, name, exerciseCopies);
     }
 
     @Override
@@ -117,7 +112,7 @@ public class Log {
                 ", endTime=" + endTime +
                 ", duration=" + duration +
                 ", name='" + name + '\'' +
-                ", exercises=" + exercises +
+                ", exercises=" + exerciseCopies +
                 '}';
     }
 }

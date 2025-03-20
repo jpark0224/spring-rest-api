@@ -1,22 +1,20 @@
 package exercisetracker.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.*;
 
 @Entity
-public class Exercise {
+public class ExerciseTemplate {
 
     private @Id @GeneratedValue Long id;
 
     private String name;
     private String primaryMuscleGroup;
 
-    Exercise() {}
+    ExerciseTemplate() {}
 
-    public Exercise(String name, String primaryMuscleGroup) {
+    public ExerciseTemplate(String name, String primaryMuscleGroup) {
         this.name = name;
         this.primaryMuscleGroup = primaryMuscleGroup;
     }
@@ -45,8 +43,8 @@ public class Exercise {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Exercise exercise = (Exercise) o;
-        return Objects.equals(id, exercise.id) && Objects.equals(name, exercise.name) && Objects.equals(primaryMuscleGroup, exercise.primaryMuscleGroup);
+        ExerciseTemplate exerciseTemplate = (ExerciseTemplate) o;
+        return Objects.equals(id, exerciseTemplate.id) && Objects.equals(name, exerciseTemplate.name) && Objects.equals(primaryMuscleGroup, exerciseTemplate.primaryMuscleGroup);
     }
 
     @Override
