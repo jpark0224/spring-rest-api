@@ -6,10 +6,12 @@ import java.util.stream.Collectors;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import exercisetracker.dto.SetDTO;
-import exercisetracker.exception.ExerciseNotFoundException;
+import exercisetracker.exception.ExerciseCopyNotFoundException;
 import exercisetracker.exception.SetNotFoundException;
 import exercisetracker.model.Exercise;
-import exercisetracker.repository.ExerciseRepository;
+import exercisetracker.model.ExerciseCopy;
+import exercisetracker.repository.ExerciseCopyRepository;
+import exercisetracker.repository.ExerciseTemplateRepository;
 import exercisetracker.repository.SetRepository;
 import exercisetracker.assembler.SetModelAssembler;
 import exercisetracker.model.Set;
@@ -30,20 +32,20 @@ public class SetController {
 
     private final SetRepository setRepository;
     private final SetModelAssembler assembler;
-    private final ExerciseRepository exerciseRepository;
+    private final ExerciseCopyRepository exerciseCopyRepository;
 
-    SetController(SetRepository setRepository, SetModelAssembler assembler, ExerciseRepository exerciseRepository) {
+    SetController(SetRepository setRepository, SetModelAssembler assembler, ExerciseCopyRepository exerciseCopyRepository) {
 
         this.setRepository = setRepository;
         this.assembler = assembler;
-        this.exerciseRepository = exerciseRepository;
+        this.exerciseCopyRepository = exerciseCopyRepository;
     }
 
     public Set createSet(SetDTO setDto) {
-        Exercise exercise = exerciseRepository.findById(setDto.getExerciseId())
-                .orElseThrow(() -> new ExerciseNotFoundException(setDto.getExerciseId()));
+        ExerciseCopy exerciseCopy = exerciseCopyRepository.findById(setDto.getExerciseCopyId())
+                .orElseThrow(() -> new ExerciseCopyNotFoundException(setDto.getExerciseCopyId()));
 
-        return new Set(setDto.getReps(), setDto.getWeight(), exercise);
+        return new Set(setDto.getReps(), setDto.getWeight(), exerciseCopy);
     }
 
     @GetMapping("/sets")
@@ -60,7 +62,7 @@ public class SetController {
     @GetMapping("/exercises/{exerciseId}/sets")
     public CollectionModel<EntityModel<Set>> allInExercise(@PathVariable Long exerciseId) {
 
-        Exercise exercise = exerciseRepository.findById(exerciseId) //
+        Exercise exercise = exerciseCopyRepository.findById(exerciseId) //
                     .orElseThrow(() -> new ExerciseNotFoundException(exerciseId));
 
         List<EntityModel<Set>> sets = setRepository.findByExerciseOrderByIdAsc(exercise).stream()
@@ -99,7 +101,7 @@ public class SetController {
                 .map(set -> {
                     set.setReps(newSet.getReps());
                     set.setWeight(newSet.getWeight());
-                    set.setExercise(newSet.getExercise());
+                    set.setExerciseCopy(newSet.getExerciseCopy());
                     return setRepository.save(set);
                 })
                 .orElseGet(() -> {

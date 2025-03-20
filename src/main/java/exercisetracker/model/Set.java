@@ -13,17 +13,17 @@ public class Set {
 
     @ManyToOne
     @JoinColumn(name = "exercise_id", nullable = false)
-    private Exercise exercise;
+    private ExerciseCopy exerciseCopy;
 
     private Integer reps;
     private Integer weight;
 
     Set() {}
 
-    public Set(Integer reps, Integer weight, Exercise exercise) {
+    public Set(Integer reps, Integer weight, ExerciseCopy exerciseCopy) {
         this.reps = reps;
         this.weight = weight;
-        this.exercise = exercise;
+        this.exerciseCopy = exerciseCopy;
     }
 
     public Long getId() {
@@ -38,12 +38,8 @@ public class Set {
         return this.weight;
     }
 
-    public Exercise getExercise() {
-        return exercise;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public ExerciseCopy getExerciseCopy() {
+        return exerciseCopy;
     }
 
     public void setReps(Integer reps) {
@@ -54,8 +50,8 @@ public class Set {
         this.weight = weight;
     }
 
-    public void setExercise(Exercise exercise) {
-        this.exercise = exercise;
+    public void setExerciseCopy(ExerciseCopy exerciseCopy) {
+        this.exerciseCopy = exerciseCopy;
     }
 
     @Override
@@ -63,19 +59,19 @@ public class Set {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Set set = (Set) o;
-        return Objects.equals(id, set.id) && Objects.equals(exercise, set.exercise) && Objects.equals(reps, set.reps) && Objects.equals(weight, set.weight);
+        return Objects.equals(id, set.id) && Objects.equals(exerciseCopy, set.exerciseCopy) && Objects.equals(reps, set.reps) && Objects.equals(weight, set.weight);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, exercise, reps, weight);
+        return Objects.hash(id, exerciseCopy, reps, weight);
     }
 
     @Override
     public String toString() {
         return "Set{" +
                 "id=" + id +
-                ", exercise=" + exercise +
+                ", exerciseCopy=" + exerciseCopy +
                 ", reps=" + reps +
                 ", weight=" + weight +
                 '}';

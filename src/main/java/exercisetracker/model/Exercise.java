@@ -14,24 +14,11 @@ public class Exercise {
     private String name;
     private String primaryMuscleGroup;
 
-    @ManyToOne
-    @JoinColumn(name = "log_id", nullable = false)
-    private Log log;
-
-    @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Set> sets = new ArrayList<>();
-
     Exercise() {}
 
-    public Exercise(String name, String primaryMuscleGroup, Log log) {
+    public Exercise(String name, String primaryMuscleGroup) {
         this.name = name;
         this.primaryMuscleGroup = primaryMuscleGroup;
-        this.log = log;
-    }
-
-    public void addSet(Set set) {
-        sets.add(set);
-        set.setExercise(this); // Set back-reference
     }
 
     public Long getId() {
@@ -46,16 +33,8 @@ public class Exercise {
         return this.primaryMuscleGroup;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setLog(Log log) {
-        this.log = log;
     }
 
     public void setPrimaryMuscleGroup(String primaryMuscleGroup) {
@@ -73,14 +52,5 @@ public class Exercise {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, primaryMuscleGroup);
-    }
-
-    @Override
-    public String toString() {
-        return "Exercise{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", primaryMuscleGroup='" + primaryMuscleGroup + '\'' +
-                '}';
     }
 }

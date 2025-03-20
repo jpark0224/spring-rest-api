@@ -3,12 +3,12 @@ package exercisetracker.dto;
 public class SetDTO {
     private Integer reps;
     private Integer weight;
-    private Long exerciseId;
+    private Long exerciseCopyId;
 
-    public SetDTO(Integer reps, Integer weight, Long exerciseId) {
+    public SetDTO(Integer reps, Integer weight, Long exerciseCopyId) {
         this.reps = reps;
         this.weight = weight;
-        this.exerciseId = exerciseId;
+        this.exerciseCopyId = exerciseCopyId;
     }
 
     public Integer getReps() {
@@ -19,8 +19,8 @@ public class SetDTO {
         return weight;
     }
 
-    public Long getExerciseId() {
-        return exerciseId;
+    public Long getExerciseCopyId() {
+        return exerciseCopyId;
     }
 
     public void setReps(Integer reps) {
@@ -31,7 +31,7 @@ public class SetDTO {
         this.weight = weight;
     }
 
-    public void setExerciseId(Long exerciseId) {
-        this.exerciseId = exerciseId;
+    public void setExerciseCopyId(Long exerciseCopyId) {
+        this.exerciseCopyId = exerciseCopyId;
     }
 }

@@ -5,8 +5,8 @@ import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
-import exercisetracker.exception.ExerciseNotFoundException;
-import exercisetracker.repository.ExerciseRepository;
+import exercisetracker.exception.ExerciseTemplateNotFoundException;
+import exercisetracker.repository.ExerciseTemplateRepository;
 import exercisetracker.assembler.ExerciseModelAssembler;
 import exercisetracker.model.Exercise;
 import org.springframework.hateoas.CollectionModel;
@@ -22,33 +22,33 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class ExerciseController {
+public class ExerciseTemplateController {
 
-    private final ExerciseRepository exerciseRepository;
+    private final ExerciseTemplateRepository exerciseTemplateRepository;
     private final ExerciseModelAssembler assembler;
 
-    ExerciseController(ExerciseRepository exerciseRepository, ExerciseModelAssembler assembler) {
+    ExerciseTemplateController(ExerciseTemplateRepository exerciseTemplateRepository, ExerciseModelAssembler assembler) {
 
-        this.exerciseRepository = exerciseRepository;
+        this.exerciseTemplateRepository = exerciseTemplateRepository;
         this.assembler = assembler;
     }
 
     @GetMapping("/exercises")
     public CollectionModel<EntityModel<Exercise>> all() {
 
-        List<EntityModel<Exercise>> exercises = exerciseRepository.findAll().stream()
+        List<EntityModel<Exercise>> exercises = exerciseTemplateRepository.findAll().stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
         return CollectionModel.of(exercises,
-                linkTo(methodOn(ExerciseController.class).all()).withSelfRel());
+                linkTo(methodOn(ExerciseTemplateController.class).all()).withSelfRel());
     }
 
     @GetMapping("/exercises/{id}")
     public EntityModel<Exercise> one(@PathVariable Long id) {
 
-        Exercise exercise = exerciseRepository.findById(id) //
-                .orElseThrow(() -> new ExerciseNotFoundException(id));
+        Exercise exercise = exerciseTemplateRepository.findById(id) //
+                .orElseThrow(() -> new ExerciseTemplateNotFoundException(id));
 
         return assembler.toModel(exercise);
     }
@@ -56,24 +56,24 @@ public class ExerciseController {
     @PostMapping("/exercises")
     ResponseEntity<EntityModel<Exercise>> newExercise(@RequestBody Exercise exercise) {
 
-        Exercise newExercise = exerciseRepository.save(exercise);
+        Exercise newExercise = exerciseTemplateRepository.save(exercise);
 
         return ResponseEntity //
-                .created(linkTo(methodOn(ExerciseController.class).one(newExercise.getId())).toUri()) //
+                .created(linkTo(methodOn(ExerciseTemplateController.class).one(newExercise.getId())).toUri()) //
                 .body(assembler.toModel(newExercise));
     }
 
     @PutMapping("/exercises/{id}")
     ResponseEntity<?> replaceExercise(@RequestBody Exercise newExercise, @PathVariable Long id) {
 
-        Exercise updatedExercise = exerciseRepository.findById(id)
+        Exercise updatedExercise = exerciseTemplateRepository.findById(id)
                 .map(exercise -> {
                     exercise.setName(newExercise.getName());
                     exercise.setPrimaryMuscleGroup(newExercise.getPrimaryMuscleGroup());
-                    return exerciseRepository.save(exercise);
+                    return exerciseTemplateRepository.save(exercise);
                 })
                 .orElseGet(() -> {
-                    return exerciseRepository.save(newExercise);
+                    return exerciseTemplateRepository.save(newExercise);
                 });
 
         EntityModel<Exercise> entityModel = assembler.toModel(updatedExercise);
@@ -87,7 +87,7 @@ public class ExerciseController {
     @DeleteMapping("/exercises/{id}")
     ResponseEntity<?> deleteExercise(@PathVariable Long id) {
 
-        exerciseRepository.deleteById(id);
+        exerciseTemplateRepository.deleteById(id);
 
         return ResponseEntity.noContent().build();
     }
