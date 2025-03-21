@@ -83,11 +83,13 @@ public class SetController {
     @PostMapping("/sets")
     ResponseEntity<EntityModel<Set>> newSet(@RequestBody SetDTO setDto) {
 
-        Set newSet = setRepository.save(createSet(setDto));
+        Set newSet = createSet(setDto);
+        newSet.getExerciseCopy().addSet(newSet);
+        Set savedSet = setRepository.save(newSet);
 
         return ResponseEntity
                 .created(linkTo(methodOn(SetController.class).one(newSet.getId())).toUri())
-                .body(assembler.toModel(newSet));
+                .body(assembler.toModel(savedSet));
     }
 
     @PutMapping("/sets/{id}")
@@ -100,9 +102,11 @@ public class SetController {
                     set.setReps(newSet.getReps());
                     set.setWeight(newSet.getWeight());
                     set.setExerciseCopy(newSet.getExerciseCopy());
+                    set.getExerciseCopy().addSet(newSet);
                     return setRepository.save(set);
                 })
                 .orElseGet(() -> {
+                    newSet.getExerciseCopy().addSet(newSet);
                     return setRepository.save(newSet);
                 });
 

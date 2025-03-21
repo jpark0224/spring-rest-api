@@ -55,19 +55,9 @@ public class LogService {
         Log log = findLogById(logId);
 
         ExerciseCopy copiedExercise = new ExerciseCopy(exerciseTemplate, log);
-        ExerciseCopy savedCopiedExercise = exerciseCopyRepository.save(copiedExercise);
-
-        log.addExerciseCopy(savedCopiedExercise);
+        log.addExerciseCopy(copiedExercise);
+        exerciseCopyRepository.save(copiedExercise);
         return logRepository.save(log);
-    }
-
-    @Transactional
-    public Set addSetToExercise(Long logId, Long exerciseCopyId, Set set) {
-
-    }
-
-    public Log getLog(Long logId) {
-
     }
 
     @Transactional
