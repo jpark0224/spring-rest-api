@@ -34,5 +34,7 @@ public class ExerciseCopy {
         set.setExerciseCopy(this);
     }
 
-
+    public void setLog(Log log) {
+        this.log = log;
+    }
 }

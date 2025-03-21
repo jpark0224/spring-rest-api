@@ -91,6 +91,11 @@ public class Log {
         this.exerciseCopies = exerciseCopies;
     }
 
+    public void addExerciseCopy(ExerciseCopy exerciseCopy) {
+        exerciseCopies.add(exerciseCopy);
+        exerciseCopy.setLog(this);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
