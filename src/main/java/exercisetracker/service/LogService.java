@@ -6,11 +6,9 @@ import exercisetracker.exception.LogNotFoundException;
 import exercisetracker.model.ExerciseCopy;
 import exercisetracker.model.ExerciseTemplate;
 import exercisetracker.model.Log;
-import exercisetracker.model.Set;
 import exercisetracker.repository.ExerciseCopyRepository;
 import exercisetracker.repository.ExerciseTemplateRepository;
 import exercisetracker.repository.LogRepository;
-import exercisetracker.repository.SetRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,16 +20,13 @@ public class LogService {
     private final LogRepository logRepository;
     private final ExerciseTemplateRepository exerciseTemplateRepository;
     private final ExerciseCopyRepository exerciseCopyRepository;
-    private final SetRepository setRepository;
 
     public LogService(LogRepository logRepository,
                       ExerciseTemplateRepository exerciseTemplateRepository,
-                      ExerciseCopyRepository exerciseCopyRepository,
-                      SetRepository setRepository) {
+                      ExerciseCopyRepository exerciseCopyRepository) {
         this.logRepository = logRepository;
         this.exerciseTemplateRepository = exerciseTemplateRepository;
         this.exerciseCopyRepository = exerciseCopyRepository;
-        this.setRepository = setRepository;
     }
 
     private Log findLogById(Long logId) {

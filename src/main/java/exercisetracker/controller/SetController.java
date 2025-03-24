@@ -7,10 +7,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import exercisetracker.dto.SetDTO;
 import exercisetracker.exception.ExerciseCopyNotFoundException;
-import exercisetracker.exception.LogNotFoundException;
 import exercisetracker.exception.SetNotFoundException;
 import exercisetracker.model.ExerciseCopy;
-import exercisetracker.model.Log;
 import exercisetracker.repository.ExerciseCopyRepository;
 import exercisetracker.repository.SetRepository;
 import exercisetracker.assembler.SetModelAssembler;
@@ -50,7 +48,7 @@ public class SetController {
         ExerciseCopy exerciseCopy = exerciseCopyRepository.findById(exerciseCopyId) //
                 .orElseThrow(() -> new ExerciseCopyNotFoundException(exerciseCopyId));
 
-        List<EntityModel<Set>> sets = setRepository.findByExerciseOrderByIdAsc(exerciseCopy).stream()
+        List<EntityModel<Set>> sets = setRepository.findByExerciseCopyOrderByIdAsc(exerciseCopy).stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 

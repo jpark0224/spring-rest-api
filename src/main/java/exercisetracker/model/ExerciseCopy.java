@@ -19,7 +19,7 @@ public class ExerciseCopy {
     @JoinColumn(name = "log_id", nullable = false)
     private Log log;
 
-    @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "exerciseCopy", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Set> sets = new ArrayList<>();
 
     private Long templateId;

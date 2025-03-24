@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface SetRepository extends JpaRepository<Set, Long>{
-    List<Set> findByExerciseOrderByIdAsc(ExerciseCopy exerciseCopy);
+    List<Set> findByExerciseCopyOrderByIdAsc(ExerciseCopy exerciseCopy);
 }
