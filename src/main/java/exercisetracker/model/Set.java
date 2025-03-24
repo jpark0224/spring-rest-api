@@ -59,12 +59,12 @@ public class Set {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Set set = (Set) o;
-        return Objects.equals(id, set.id) && Objects.equals(exerciseCopy, set.exerciseCopy) && Objects.equals(reps, set.reps) && Objects.equals(weight, set.weight);
+        return Objects.equals(id, set.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, exerciseCopy, reps, weight);
+        return Objects.hashCode(id);
     }
 
     @Override

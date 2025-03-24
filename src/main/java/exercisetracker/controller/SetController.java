@@ -7,8 +7,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import exercisetracker.dto.SetDTO;
 import exercisetracker.exception.ExerciseCopyNotFoundException;
+import exercisetracker.exception.LogNotFoundException;
 import exercisetracker.exception.SetNotFoundException;
 import exercisetracker.model.ExerciseCopy;
+import exercisetracker.model.Log;
 import exercisetracker.repository.ExerciseCopyRepository;
 import exercisetracker.repository.SetRepository;
 import exercisetracker.assembler.SetModelAssembler;
@@ -17,15 +19,10 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/logs/{logId}/exercises/{exerciseCopyId}/sets")
 public class SetController {
 
     private final SetRepository setRepository;
@@ -46,58 +43,55 @@ public class SetController {
         return new Set(setDto.getReps(), setDto.getWeight(), exerciseCopy);
     }
 
-    @GetMapping("/sets")
-    public CollectionModel<EntityModel<Set>> all() {
+    @GetMapping
+    public CollectionModel<EntityModel<Set>> allInExercise(@PathVariable Long logId,
+                                                           @PathVariable Long exerciseCopyId) {
 
-        List<EntityModel<Set>> sets = setRepository.findAll().stream()
-                .map(assembler::toModel)
-                .collect(Collectors.toList());
-
-        return CollectionModel.of(sets,
-                linkTo(methodOn(SetController.class).all()).withSelfRel());
-    }
-
-    @GetMapping("/exercises/{exerciseId}/sets")
-    public CollectionModel<EntityModel<Set>> allInExercise(@PathVariable Long exerciseId) {
-
-        ExerciseCopy exerciseCopy = exerciseCopyRepository.findById(exerciseId) //
-                    .orElseThrow(() -> new ExerciseCopyNotFoundException(exerciseId));
+        ExerciseCopy exerciseCopy = exerciseCopyRepository.findById(exerciseCopyId) //
+                .orElseThrow(() -> new ExerciseCopyNotFoundException(exerciseCopyId));
 
         List<EntityModel<Set>> sets = setRepository.findByExerciseOrderByIdAsc(exerciseCopy).stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
         return CollectionModel.of(sets,
-                linkTo(methodOn(SetController.class).allInExercise(exerciseId)).withSelfRel());
+                linkTo(methodOn(SetController.class).allInExercise(logId, exerciseCopyId)).withSelfRel());
     }
 
-    @GetMapping("/sets/{id}")
-    public EntityModel<Set> one(@PathVariable Long id) {
+    @GetMapping("/{setId}")
+    public EntityModel<Set> one(@PathVariable Long logId,
+                                @PathVariable Long exerciseCopyId,
+                                @PathVariable Long setId) {
 
-        Set order = setRepository.findById(id) //
-                .orElseThrow(() -> new SetNotFoundException(id));
+        Set set = setRepository.findById(exerciseCopyId) //
+                .orElseThrow(() -> new SetNotFoundException(exerciseCopyId));
 
-        return assembler.toModel(order);
+        return assembler.toModel(set);
     }
 
-    @PostMapping("/sets")
-    ResponseEntity<EntityModel<Set>> newSet(@RequestBody SetDTO setDto) {
+    @PostMapping
+    ResponseEntity<EntityModel<Set>> newSet(@PathVariable Long logId,
+                                            @PathVariable Long exerciseCopyId,
+                                            @RequestBody SetDTO setDto) {
 
         Set newSet = createSet(setDto);
         newSet.getExerciseCopy().addSet(newSet);
         Set savedSet = setRepository.save(newSet);
 
         return ResponseEntity
-                .created(linkTo(methodOn(SetController.class).one(newSet.getId())).toUri())
+                .created(linkTo(methodOn(SetController.class).one(logId, exerciseCopyId, newSet.getId())).toUri())
                 .body(assembler.toModel(savedSet));
     }
 
-    @PutMapping("/sets/{id}")
-    ResponseEntity<?> replaceSet(@RequestBody SetDTO setDto, @PathVariable Long id) {
+    @PutMapping("/{setId}")
+    ResponseEntity<?> replaceSet(@PathVariable Long logId,
+                                 @PathVariable Long exerciseCopyId,
+                                 @PathVariable Long setId,
+                                 @RequestBody SetDTO setDto) {
 
         Set newSet = createSet(setDto);
 
-        Set updatedSet = setRepository.findById(id)
+        Set updatedSet = setRepository.findById(setId)
                 .map(set -> {
                     set.setReps(newSet.getReps());
                     set.setWeight(newSet.getWeight());
@@ -117,10 +111,16 @@ public class SetController {
                 .body(entityModel);
     }
 
-    @DeleteMapping("/sets/{id}")
-    ResponseEntity<?> deleteSet(@PathVariable Long id) {
+    @DeleteMapping("/{setId}")
+    public ResponseEntity<Void> deleteSet(
+            @PathVariable Long logId,
+            @PathVariable Long exerciseCopyId,
+            @PathVariable Long setId) {
 
-        setRepository.deleteById(id);
+        Set set = setRepository.findById(setId)
+                .orElseThrow(() -> new SetNotFoundException(setId));
+
+        setRepository.delete(set);
 
         return ResponseEntity.noContent().build();
     }

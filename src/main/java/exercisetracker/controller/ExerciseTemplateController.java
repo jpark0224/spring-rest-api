@@ -7,7 +7,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import exercisetracker.exception.ExerciseTemplateNotFoundException;
 import exercisetracker.repository.ExerciseTemplateRepository;
-import exercisetracker.assembler.ExerciseModelAssembler;
+import exercisetracker.assembler.ExerciseTemplateModelAssembler;
 import exercisetracker.model.ExerciseTemplate;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -25,9 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExerciseTemplateController {
 
     private final ExerciseTemplateRepository exerciseTemplateRepository;
-    private final ExerciseModelAssembler assembler;
+    private final ExerciseTemplateModelAssembler assembler;
 
-    ExerciseTemplateController(ExerciseTemplateRepository exerciseTemplateRepository, ExerciseModelAssembler assembler) {
+    ExerciseTemplateController(ExerciseTemplateRepository exerciseTemplateRepository, ExerciseTemplateModelAssembler assembler) {
 
         this.exerciseTemplateRepository = exerciseTemplateRepository;
         this.assembler = assembler;

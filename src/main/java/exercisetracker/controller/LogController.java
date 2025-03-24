@@ -1,19 +1,15 @@
 package exercisetracker.controller;
 
 import exercisetracker.assembler.LogModelAssembler;
-import exercisetracker.exception.ExerciseCopyNotFoundException;
 import exercisetracker.exception.LogNotFoundException;
-import exercisetracker.model.ExerciseCopy;
 import exercisetracker.model.Log;
-import exercisetracker.repository.ExerciseCopyRepository;
 import exercisetracker.repository.LogRepository;
+import exercisetracker.service.LogService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,15 +18,15 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 public class LogController {
 
+    private final LogService logService;
     private final LogRepository logRepository;
-    private final ExerciseCopyRepository exerciseCopyRepository;
     private final LogModelAssembler assembler;
 
-    LogController(LogRepository logRepository, LogModelAssembler assembler, ExerciseCopyRepository exerciseCopyRepository) {
+    LogController(LogService logService, LogRepository logRepository, LogModelAssembler assembler) {
 
+        this.logService = logService;
         this.logRepository = logRepository;
         this.assembler = assembler;
-        this.exerciseCopyRepository = exerciseCopyRepository;
     }
 
     @GetMapping("/logs")
@@ -47,7 +43,7 @@ public class LogController {
     @GetMapping("/logs/{id}")
     public EntityModel<Log> one(@PathVariable Long id) {
 
-        Log order = logRepository.findById(id) //
+        Log order = logRepository.findById(id)
                 .orElseThrow(() -> new LogNotFoundException(id));
 
         return assembler.toModel(order);
@@ -56,44 +52,28 @@ public class LogController {
     @PostMapping("/logs")
     ResponseEntity<EntityModel<Log>> newLog(@RequestBody Log log) {
 
-        log.setTimestamp(LocalDateTime.now());
-        Log newLog = logRepository.save(log);
+        Log newLog = logService.createLog(log);
 
         return ResponseEntity
                 .created(linkTo(methodOn(LogController.class).one(newLog.getId())).toUri())
                 .body(assembler.toModel(newLog));
     }
 
-    @PutMapping("/logs/{id}")
-    ResponseEntity<?> replaceLog(@RequestBody Log logRequest, @PathVariable Long id) {
+    @PutMapping("/logs/{id}/complete")
+    ResponseEntity<?> completeLog(@PathVariable Long id) {
 
+        Log completedLog = logService.completeLog(id);
+
+        return ResponseEntity
+                .created(linkTo(methodOn(LogController.class).one(completedLog.getId())).toUri())
+                .body(assembler.toModel(completedLog));
     }
-
-//    @PutMapping("/logs/{id}")
-//    ResponseEntity<?> replaceLog(@RequestBody Log logRequest, @PathVariable Long id) {
-//
-//        Log newLog = createLog(logRequest);
-//
-//        Log updatedLog = logRepository.findById(id)
-//                .map(log -> {
-//                    log.logReps(newLog.getReps());
-//                    log.logWeight(newLog.getWeight());
-//                    log.logExerciseCopy(newLog.getExerciseCopy());
-//                    return logRepository.save(log);
-//                })
-//                .orElseGet(() -> {
-//                    return logRepository.save(newLog);
-//                });
-//
-//        EntityModel<Log> entityModel = assembler.toModel(updatedLog);
-//
-//        return ResponseEntity
-//                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
-//                .body(entityModel);
-//    }
 
     @DeleteMapping("/logs/{id}")
     ResponseEntity<?> deleteLog(@PathVariable Long id) {
+        if (!logRepository.existsById(id)) {
+            throw new LogNotFoundException(id);
+        }
 
         logRepository.deleteById(id);
 

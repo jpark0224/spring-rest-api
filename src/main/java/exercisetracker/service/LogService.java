@@ -50,6 +50,19 @@ public class LogService {
     }
 
     @Transactional
+    public Log createLog(Log logRequest) {
+        logRequest.setTimestamp(LocalDateTime.now());
+        return logRepository.save(logRequest);
+    }
+
+    @Transactional
+    public Log completeLog(Long logId) {
+        Log log = findLogById(logId);
+        log.setEndTime(LocalDateTime.now());
+        return logRepository.save(log);
+    }
+
+    @Transactional
     public Log addExerciseToLog(Long logId, Long exerciseId) {
         ExerciseTemplate exerciseTemplate = findExerciseTemplateById(exerciseId);
         Log log = findLogById(logId);
@@ -61,17 +74,11 @@ public class LogService {
     }
 
     @Transactional
-    public Log completeLog(Long logId) {
-
-    }
-
-    @Transactional
     public Log removeExerciseFromLog(Long logId, Long exerciseCopyId) {
+        ExerciseCopy exerciseCopy = findExerciseCopyById(exerciseCopyId);
+        Log log = findLogById(logId);
 
-    }
-
-    @Transactional
-    public void deleteLog(Long logId) {
-
+        log.removeExerciseCopy(exerciseCopy);
+        return logRepository.save(log);
     }
 }

@@ -96,17 +96,22 @@ public class Log {
         exerciseCopy.setLog(this);
     }
 
+    public void removeExerciseCopy(ExerciseCopy exerciseCopy) {
+        exerciseCopies.remove(exerciseCopy);
+        exerciseCopy.setLog(null);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Log log = (Log) o;
-        return Objects.equals(id, log.id) && Objects.equals(timestamp, log.timestamp) && Objects.equals(endTime, log.endTime) && Objects.equals(duration, log.duration) && Objects.equals(name, log.name) && Objects.equals(exerciseCopies, log.exerciseCopies);
+        return Objects.equals(id, log.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, timestamp, endTime, duration, name, exerciseCopies);
+        return Objects.hashCode(id);
     }
 
     @Override

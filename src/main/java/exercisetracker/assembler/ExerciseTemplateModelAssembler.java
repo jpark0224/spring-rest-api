@@ -10,7 +10,7 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ExerciseModelAssembler implements RepresentationModelAssembler<ExerciseTemplate, EntityModel<ExerciseTemplate>> {
+public class ExerciseTemplateModelAssembler implements RepresentationModelAssembler<ExerciseTemplate, EntityModel<ExerciseTemplate>> {
 
     @Override
     public EntityModel<ExerciseTemplate> toModel(ExerciseTemplate exerciseTemplate) {
