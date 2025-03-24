@@ -71,6 +71,14 @@ public class ExerciseCopy {
         this.primaryMuscleGroup = primaryMuscleGroup;
     }
 
+    public Long getTemplateId() {
+        return templateId;
+    }
+
+    public void setTemplateId(Long templateId) {
+        this.templateId = templateId;
+    }
+
     public Log getLog() {
         return log;
     }

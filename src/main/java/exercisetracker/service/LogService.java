@@ -63,22 +63,23 @@ public class LogService {
     }
 
     @Transactional
-    public Log addExerciseToLog(Long logId, Long exerciseId) {
-        ExerciseTemplate exerciseTemplate = findExerciseTemplateById(exerciseId);
+    public ExerciseCopy addExerciseToLog(Long logId, Long exerciseTemplateId) {
+        ExerciseTemplate exerciseTemplate = findExerciseTemplateById(exerciseTemplateId);
         Log log = findLogById(logId);
 
         ExerciseCopy copiedExercise = new ExerciseCopy(exerciseTemplate, log);
         log.addExerciseCopy(copiedExercise);
-        exerciseCopyRepository.save(copiedExercise);
-        return logRepository.save(log);
+        ExerciseCopy savedExerciseCopy = exerciseCopyRepository.save(copiedExercise);
+        logRepository.save(log);
+        return savedExerciseCopy;
     }
 
     @Transactional
-    public Log removeExerciseFromLog(Long logId, Long exerciseCopyId) {
+    public void removeExerciseFromLog(Long logId, Long exerciseCopyId) {
         ExerciseCopy exerciseCopy = findExerciseCopyById(exerciseCopyId);
         Log log = findLogById(logId);
 
         log.removeExerciseCopy(exerciseCopy);
-        return logRepository.save(log);
+        logRepository.save(log);
     }
 }

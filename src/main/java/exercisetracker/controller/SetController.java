@@ -29,7 +29,7 @@ public class SetController {
     private final SetModelAssembler assembler;
     private final ExerciseCopyRepository exerciseCopyRepository;
 
-    SetController(SetRepository setRepository, SetModelAssembler assembler, ExerciseCopyRepository exerciseCopyRepository) {
+    public SetController(SetRepository setRepository, SetModelAssembler assembler, ExerciseCopyRepository exerciseCopyRepository) {
 
         this.setRepository = setRepository;
         this.assembler = assembler;

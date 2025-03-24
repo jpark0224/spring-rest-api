@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface ExerciseCopyRepository extends JpaRepository<ExerciseCopy, Long> {
-    List<ExerciseCopy> findByLog(Log log);
+    List<ExerciseCopy> findByLogId(Long logId);
 }

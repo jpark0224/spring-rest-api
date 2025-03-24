@@ -17,7 +17,7 @@ public class ExerciseCopyModelAssembler implements RepresentationModelAssembler<
     public EntityModel<ExerciseCopy> toModel(ExerciseCopy exerciseCopy) {
 
         return EntityModel.of(exerciseCopy,
-                WebMvcLinkBuilder.linkTo(methodOn(ExerciseCopyController.class).one(exerciseCopy.getId())).withSelfRel(),
-                linkTo(methodOn(ExerciseCopyController.class).all()).withRel("exerciseCopies"));
+                WebMvcLinkBuilder.linkTo(methodOn(ExerciseCopyController.class).one(exerciseCopy.getLog().getId(), exerciseCopy.getId())).withSelfRel(),
+                linkTo(methodOn(ExerciseCopyController.class).allInLog(exerciseCopy.getLog().getId())).withRel("exerciseCopies"));
     }
 }

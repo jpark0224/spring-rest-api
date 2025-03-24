@@ -27,7 +27,7 @@ public class ExerciseTemplateController {
     private final ExerciseTemplateRepository exerciseTemplateRepository;
     private final ExerciseTemplateModelAssembler assembler;
 
-    ExerciseTemplateController(ExerciseTemplateRepository exerciseTemplateRepository, ExerciseTemplateModelAssembler assembler) {
+    public ExerciseTemplateController(ExerciseTemplateRepository exerciseTemplateRepository, ExerciseTemplateModelAssembler assembler) {
 
         this.exerciseTemplateRepository = exerciseTemplateRepository;
         this.assembler = assembler;

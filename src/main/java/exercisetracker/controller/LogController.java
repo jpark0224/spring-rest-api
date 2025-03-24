@@ -22,7 +22,7 @@ public class LogController {
     private final LogRepository logRepository;
     private final LogModelAssembler assembler;
 
-    LogController(LogService logService, LogRepository logRepository, LogModelAssembler assembler) {
+    public LogController(LogService logService, LogRepository logRepository, LogModelAssembler assembler) {
 
         this.logService = logService;
         this.logRepository = logRepository;
