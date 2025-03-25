@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.CreatedDate;
 import java.time.LocalDateTime;
 import java.time.Duration;
@@ -28,6 +30,7 @@ public class Log {
     private String name;
 
     @OneToMany(mappedBy = "log", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonProperty("exercises")
     @JsonManagedReference
     private List<ExerciseCopy> exerciseCopies = new ArrayList<>();
 
@@ -86,6 +89,7 @@ public class Log {
         this.name = (name != null && !name.isEmpty()) ? name : "Awesome Workout";
     }
 
+    @JsonIgnore
     public List<ExerciseCopy> getExercises() {
         return exerciseCopies;
     }

@@ -52,7 +52,7 @@ public class ExerciseCopyController {
         return exerciseCopyModelAssembler.toModel(exerciseCopy);
     }
 
-    @PostMapping("/{templateId}")
+    @PostMapping("/from-template/{templateId}")
     public ResponseEntity<?> addExerciseToLog(
             @PathVariable Long logId,
             @PathVariable Long templateId) {

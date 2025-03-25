@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -87,6 +88,7 @@ public class ExerciseCopy {
         return log;
     }
 
+    @JsonIgnore
     public List<Set> getSets() {
         return sets;
     }

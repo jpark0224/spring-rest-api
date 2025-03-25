@@ -34,9 +34,9 @@ public class SetController {
         this.exerciseCopyRepository = exerciseCopyRepository;
     }
 
-    public Set createSet(SetDTO setDto) {
-        ExerciseCopy exerciseCopy = exerciseCopyRepository.findById(setDto.getExerciseCopyId())
-                .orElseThrow(() -> new ExerciseCopyNotFoundException(setDto.getExerciseCopyId()));
+    public Set createSet(SetDTO setDto, Long exerciseCopyId) {
+        ExerciseCopy exerciseCopy = exerciseCopyRepository.findById(exerciseCopyId)
+                .orElseThrow(() -> new ExerciseCopyNotFoundException(exerciseCopyId));
 
         return new Set(setDto.getReps(), setDto.getWeight(), exerciseCopy);
     }
@@ -72,7 +72,7 @@ public class SetController {
                                             @PathVariable Long exerciseCopyId,
                                             @RequestBody SetDTO setDto) {
 
-        Set newSet = createSet(setDto);
+        Set newSet = createSet(setDto, exerciseCopyId);
         newSet.getExerciseCopy().addSet(newSet);
         Set savedSet = setRepository.save(newSet);
 
@@ -87,7 +87,7 @@ public class SetController {
                                  @PathVariable Long setId,
                                  @RequestBody SetDTO setDto) {
 
-        Set newSet = createSet(setDto);
+        Set newSet = createSet(setDto, exerciseCopyId);
 
         Set updatedSet = setRepository.findById(setId)
                 .map(set -> {
