@@ -61,8 +61,8 @@ public class SetController {
                                 @PathVariable Long exerciseCopyId,
                                 @PathVariable Long setId) {
 
-        Set set = setRepository.findById(exerciseCopyId) //
-                .orElseThrow(() -> new SetNotFoundException(exerciseCopyId));
+        Set set = setRepository.findById(setId) //
+                .orElseThrow(() -> new SetNotFoundException(setId));
 
         return assembler.toModel(set);
     }
@@ -87,17 +87,14 @@ public class SetController {
                                  @PathVariable Long setId,
                                  @RequestBody SetDTO setDto) {
 
-        Set newSet = createSet(setDto, exerciseCopyId);
-
         Set updatedSet = setRepository.findById(setId)
-                .map(set -> {
-                    set.setReps(newSet.getReps());
-                    set.setWeight(newSet.getWeight());
-                    set.setExerciseCopy(newSet.getExerciseCopy());
-                    set.getExerciseCopy().addSet(newSet);
-                    return setRepository.save(set);
+                .map(existingSet -> {
+                    existingSet.setReps(setDto.getReps());
+                    existingSet.setWeight(setDto.getWeight());
+                    return setRepository.save(existingSet);
                 })
                 .orElseGet(() -> {
+                    Set newSet = createSet(setDto, exerciseCopyId);
                     newSet.getExerciseCopy().addSet(newSet);
                     return setRepository.save(newSet);
                 });
