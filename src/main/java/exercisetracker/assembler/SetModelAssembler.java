@@ -18,15 +18,20 @@ public class SetModelAssembler implements RepresentationModelAssembler<Set, Enti
     @Override
     public EntityModel<Set> toModel(Set set) {
 
+        Long logId = set.getExerciseCopy().getLog().getId();
+        Long exerciseCopyId = set.getExerciseCopy().getId();
+        Long setId = set.getId();
+
+        EntityModel<Set> model = EntityModel.of(set,
+                WebMvcLinkBuilder.linkTo(methodOn(SetController.class).one(logId,
+                        exerciseCopyId,
+                        setId)).withSelfRel(),
+                linkTo(methodOn(SetController.class)
+                        .allInExercise(logId, exerciseCopyId))
+                        .withRel("sets"));
+
         set.setExerciseCopy(null);
 
-        return EntityModel.of(set,
-                WebMvcLinkBuilder.linkTo(methodOn(SetController.class).one(set.getExerciseCopy().getLog().getId(),
-                        set.getExerciseCopy().getId(),
-                        set.getId())).withSelfRel(),
-                linkTo(methodOn(SetController.class)
-                        .allInExercise(set.getExerciseCopy().getLog().getId(),
-                                set.getExerciseCopy().getId()))
-                        .withRel("sets"));
+        return model;
     }
 }
