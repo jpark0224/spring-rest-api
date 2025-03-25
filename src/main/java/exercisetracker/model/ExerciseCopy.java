@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -16,10 +18,12 @@ public class ExerciseCopy {
     private String primaryMuscleGroup;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "log_id", nullable = false)
     private Log log;
 
     @OneToMany(mappedBy = "exerciseCopy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Set> sets = new ArrayList<>();
 
     private Long templateId;

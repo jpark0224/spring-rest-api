@@ -18,6 +18,8 @@ public class SetModelAssembler implements RepresentationModelAssembler<Set, Enti
     @Override
     public EntityModel<Set> toModel(Set set) {
 
+        set.setExerciseCopy(null);
+
         return EntityModel.of(set,
                 WebMvcLinkBuilder.linkTo(methodOn(SetController.class).one(set.getExerciseCopy().getLog().getId(),
                         set.getExerciseCopy().getId(),

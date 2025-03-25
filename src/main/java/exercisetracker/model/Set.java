@@ -2,6 +2,7 @@ package exercisetracker.model;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 
@@ -12,6 +13,7 @@ public class Set {
     private @Id @GeneratedValue Long id;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "exercise_id", nullable = false)
     private ExerciseCopy exerciseCopy;
 
