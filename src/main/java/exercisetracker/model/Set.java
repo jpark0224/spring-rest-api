@@ -17,12 +17,12 @@ public class Set {
     @JoinColumn(name = "exercise_id", nullable = false)
     private ExerciseCopy exerciseCopy;
 
-    private Integer reps;
-    private Integer weight;
+    private int reps;
+    private Double weight;
 
     Set() {}
 
-    public Set(Integer reps, Integer weight, ExerciseCopy exerciseCopy) {
+    public Set(int reps, Double weight, ExerciseCopy exerciseCopy) {
         this.reps = reps;
         this.weight = weight;
         this.exerciseCopy = exerciseCopy;
@@ -32,11 +32,11 @@ public class Set {
         return this.id;
     }
 
-    public Integer getReps() {
+    public int getReps() {
         return this.reps;
     }
 
-    public Integer getWeight() {
+    public Double getWeight() {
         return this.weight;
     }
 
@@ -44,11 +44,11 @@ public class Set {
         return exerciseCopy;
     }
 
-    public void setReps(Integer reps) {
+    public void setReps(int reps) {
         this.reps = reps;
     }
 
-    public void setWeight(Integer weight) {
+    public void setWeight(Double weight) {
         this.weight = weight;
     }
 

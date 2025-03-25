@@ -13,6 +13,7 @@ import exercisetracker.repository.ExerciseCopyRepository;
 import exercisetracker.repository.SetRepository;
 import exercisetracker.assembler.SetModelAssembler;
 import exercisetracker.model.Set;
+import jakarta.validation.Valid;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -70,7 +71,7 @@ public class SetController {
     @PostMapping
     ResponseEntity<EntityModel<Set>> newSet(@PathVariable Long logId,
                                             @PathVariable Long exerciseCopyId,
-                                            @RequestBody SetDTO setDto) {
+                                            @RequestBody @Valid SetDTO setDto) {
 
         Set newSet = createSet(setDto, exerciseCopyId);
         newSet.getExerciseCopy().addSet(newSet);
@@ -85,7 +86,7 @@ public class SetController {
     ResponseEntity<?> replaceSet(@PathVariable Long logId,
                                  @PathVariable Long exerciseCopyId,
                                  @PathVariable Long setId,
-                                 @RequestBody SetDTO setDto) {
+                                 @RequestBody @Valid SetDTO setDto) {
 
         Set updatedSet = setRepository.findById(setId)
                 .map(existingSet -> {

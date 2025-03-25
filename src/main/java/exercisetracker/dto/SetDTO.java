@@ -1,27 +1,34 @@
 package exercisetracker.dto;
 
-public class SetDTO {
-    private Integer reps;
-    private Integer weight;
+import jakarta.validation.constraints.Min;
 
-    public SetDTO(Integer reps, Integer weight) {
+public class SetDTO {
+
+    @Min(value = 1, message = "Reps must be at least 1")
+    private int reps;
+
+    @Min(value = 0, message = "Weight must be zero or more")
+    private Double weight;
+
+    public SetDTO(int reps, Double weight) {
+
         this.reps = reps;
         this.weight = weight;
     }
 
-    public Integer getReps() {
+    public int getReps() {
         return reps;
     }
 
-    public Integer getWeight() {
+    public Double getWeight() {
         return weight;
     }
 
-    public void setReps(Integer reps) {
+    public void setReps(int reps) {
         this.reps = reps;
     }
 
-    public void setWeight(Integer weight) {
+    public void setWeight(Double weight) {
         this.weight = weight;
     }
 }
