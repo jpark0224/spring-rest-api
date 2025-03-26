@@ -34,7 +34,7 @@ public class Log {
     @JsonManagedReference
     private List<ExerciseCopy> exerciseCopies = new ArrayList<>();
 
-    Log() {
+    public Log() {
         this.name = "Awesome Workout";
     }
 
@@ -90,11 +90,11 @@ public class Log {
     }
 
     @JsonIgnore
-    public List<ExerciseCopy> getExercises() {
+    public List<ExerciseCopy> getExerciseCopies() {
         return exerciseCopies;
     }
 
-    public void setExercises(List<ExerciseCopy> exerciseCopies) {
+    public void setExerciseCopies(List<ExerciseCopy> exerciseCopies) {
         this.exerciseCopies = exerciseCopies;
     }
 
