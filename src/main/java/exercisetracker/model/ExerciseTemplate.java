@@ -12,7 +12,7 @@ public class ExerciseTemplate {
     private String name;
     private String primaryMuscleGroup;
 
-    ExerciseTemplate() {}
+    public ExerciseTemplate() {}
 
     public ExerciseTemplate(String name, String primaryMuscleGroup) {
         this.name = name;
@@ -29,6 +29,10 @@ public class ExerciseTemplate {
 
     public String getPrimaryMuscleGroup() {
         return this.primaryMuscleGroup;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setName(String name) {
