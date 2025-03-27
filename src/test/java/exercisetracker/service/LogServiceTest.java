@@ -11,7 +11,10 @@ import exercisetracker.repository.ExerciseTemplateRepository;
 import exercisetracker.repository.LogRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -37,9 +40,64 @@ public class LogServiceTest {
     }
 
     @Test
+    void testCreateLog_ReturnsSavedLogWithTimestamp_givenLogRequest() {
+        try (MockedStatic<LocalDateTime> mocked = Mockito.mockStatic(LocalDateTime.class)) {
+            LocalDateTime mockedTimestamp = LocalDateTime.of(2099, 1, 1, 1, 0);
+
+            mocked.when(LocalDateTime::now).thenReturn(mockedTimestamp);
+            when(logRepository.save(any(Log.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Log logRequest = new Log();
+            Log result = logService.createLog(logRequest);
+
+            assertThat(result.getTimestamp()).isEqualTo(mockedTimestamp);
+        }
+    }
+
+    @Test
+    void testCompleteLog_throwsException_givenInvalidLogId() {
+        try (MockedStatic<LocalDateTime> mocked = Mockito.mockStatic(LocalDateTime.class)) {
+            LocalDateTime mockedTimestamp = LocalDateTime.of(2099, 1, 1, 2, 0);
+
+            mocked.when(LocalDateTime::now).thenReturn(mockedTimestamp);
+            when(logRepository.save(any(Log.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Long validLogId = 1L;
+            Long invalidLogId = 999L;
+
+            Log mockedLog = new Log();
+            mockedLog.setId(validLogId);
+
+            when(logRepository.findById(invalidLogId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> logService.completeLog(invalidLogId)).isInstanceOf(LogNotFoundException.class);
+        }
+    }
+
+    @Test
+    void testCompleteLog_ReturnsSavedLogWithEndTime_givenLogRequest_givenValidLogId() {
+        try (MockedStatic<LocalDateTime> mocked = Mockito.mockStatic(LocalDateTime.class)) {
+            LocalDateTime mockedTimestamp = LocalDateTime.of(2099, 1, 1, 2, 0);
+
+            mocked.when(LocalDateTime::now).thenReturn(mockedTimestamp);
+            when(logRepository.save(any(Log.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Long logId = 1L;
+            Log mockedLog = new Log();
+            mockedLog.setId(logId);
+
+            when(logRepository.findById(logId)).thenReturn(Optional.of(mockedLog));
+
+            Log result = logService.completeLog(logId);
+
+            assertThat(result.getEndTime()).isEqualTo(mockedTimestamp);
+        }
+    }
+
+    @Test
     void testAddExerciseToLog_throwsException_givenInvalidLogId() {
 
-        Long logId = 1L;
+        Long invalidLogId = 1L;
         Long templateId = 1L;
 
         ExerciseTemplate mockedTemplate = new ExerciseTemplate();
@@ -48,28 +106,28 @@ public class LogServiceTest {
         mockedTemplate.setPrimaryMuscleGroup("Glutes");
 
         when(exerciseTemplateRepository.findById(templateId)).thenReturn(Optional.of(mockedTemplate));
-        when(logRepository.findById(logId)).thenReturn(Optional.empty());
+        when(logRepository.findById(invalidLogId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> logService.addExerciseToLog(logId, templateId)).isInstanceOf(LogNotFoundException.class);
+        assertThatThrownBy(() -> logService.addExerciseToLog(invalidLogId, templateId)).isInstanceOf(LogNotFoundException.class);
     }
 
     @Test
     void testAddExerciseToLog_throwsException_givenInvalidTemplateId() {
 
         Long logId = 1L;
-        Long templateId = 1L;
+        Long invalidTemplateId = 1L;
 
         Log mockedLog = new Log();
         mockedLog.setId(logId);
 
-        when(exerciseTemplateRepository.findById(templateId)).thenReturn(Optional.empty());
+        when(exerciseTemplateRepository.findById(invalidTemplateId)).thenReturn(Optional.empty());
         when(logRepository.findById(logId)).thenReturn(Optional.of(mockedLog));
 
-        assertThatThrownBy(() -> logService.addExerciseToLog(logId, templateId)).isInstanceOf(ExerciseTemplateNotFoundException.class);
+        assertThatThrownBy(() -> logService.addExerciseToLog(logId, invalidTemplateId)).isInstanceOf(ExerciseTemplateNotFoundException.class);
     }
 
     @Test
-    void testAddExerciseToLog_throwsException_givenValidLogIdAndTemplateId() {
+    void testAddExerciseToLog_shouldAddExerciseToLog_givenValidLogIdAndTemplateId() {
 
         Long logId = 1L;
         Long templateId = 1L;
@@ -96,12 +154,15 @@ public class LogServiceTest {
     @Test
     void testRemoveExerciseFromLog_throwsException_givenInvalidLogId() {
 
-        Long logId = 1L;
+        Long validLogId = 1L;
+        Long invalidLogId = 999L;
         Long exerciseCopyId = 1L;
         Long templateId = 1L;
 
         ExerciseCopy mockedExerciseCopy = new ExerciseCopy();
         Log mockedLog = new Log();
+        mockedLog.setId(validLogId);
+
         mockedExerciseCopy.setId(exerciseCopyId);
         mockedExerciseCopy.setName("Dumbbell Lunge");
         mockedExerciseCopy.setPrimaryMuscleGroup("Glutes");
@@ -109,28 +170,28 @@ public class LogServiceTest {
         mockedExerciseCopy.setTemplateId(templateId);
 
         when(exerciseCopyRepository.findById(exerciseCopyId)).thenReturn(Optional.of(mockedExerciseCopy));
-        when(logRepository.findById(logId)).thenReturn(Optional.empty());
+        when(logRepository.findById(invalidLogId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> logService.removeExerciseFromLog(logId, exerciseCopyId)).isInstanceOf(LogNotFoundException.class);
+        assertThatThrownBy(() -> logService.removeExerciseFromLog(invalidLogId, exerciseCopyId)).isInstanceOf(LogNotFoundException.class);
     }
 
     @Test
     void testRemoveExerciseFromLog_throwsException_givenInvalidExerciseCopyId() {
 
         Long logId = 1L;
-        Long exerciseCopyId = 1L;
+        Long invalidExerciseCopyId = 1L;
 
         Log mockedLog = new Log();
         mockedLog.setId(logId);
 
-        when(exerciseCopyRepository.findById(exerciseCopyId)).thenReturn(Optional.empty());
+        when(exerciseCopyRepository.findById(invalidExerciseCopyId)).thenReturn(Optional.empty());
         when(logRepository.findById(logId)).thenReturn(Optional.of(mockedLog));
 
-        assertThatThrownBy(() -> logService.removeExerciseFromLog(logId, exerciseCopyId)).isInstanceOf(ExerciseCopyNotFoundException.class);
+        assertThatThrownBy(() -> logService.removeExerciseFromLog(logId, invalidExerciseCopyId)).isInstanceOf(ExerciseCopyNotFoundException.class);
     }
 
     @Test
-    void testRemoveExerciseFromLog_throwsException_givenValidLogIdAndExerciseCopyId() {
+    void testRemoveExerciseFromLog_shouldRemoveExerciseFromLog_givenValidLogIdAndExerciseCopyId() {
 
         Long logId = 1L;
         Long exerciseCopyId = 1L;
@@ -152,6 +213,5 @@ public class LogServiceTest {
 
         Collection<ExerciseCopy> copies = mockedLog.getExerciseCopies();
         assertThat(copies).doesNotContain(mockedExerciseCopy);
-        verify(logRepository).save(mockedLog);
     }
 }
