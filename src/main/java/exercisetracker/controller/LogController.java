@@ -37,8 +37,10 @@ public class LogController {
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
-        return CollectionModel.of(logs,
-                linkTo(methodOn(LogController.class).all()).withSelfRel());
+        return CollectionModel.of(
+                logs,
+                linkTo(methodOn(LogController.class).all()).withSelfRel()
+        );
     }
 
     @GetMapping("/logs/{id}")
