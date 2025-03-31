@@ -46,10 +46,10 @@ public class LogController {
     @GetMapping("/logs/{id}")
     public EntityModel<Log> one(@PathVariable Long id) {
 
-        Log order = logRepository.findById(id)
+        Log logs = logRepository.findById(id)
                 .orElseThrow(() -> new LogNotFoundException(id));
 
-        return assembler.toModel(order);
+        return assembler.toModel(logs);
     }
 
     @PostMapping("/logs")
@@ -63,7 +63,7 @@ public class LogController {
     }
 
     @PutMapping("/logs/{id}/complete")
-    ResponseEntity<?> completeLog(@PathVariable Long id) {
+    ResponseEntity<EntityModel<Log>> completeLog(@PathVariable Long id) {
 
         Log completedLog = logService.completeLog(id);
 
@@ -73,7 +73,7 @@ public class LogController {
     }
 
     @DeleteMapping("/logs/{id}")
-    ResponseEntity<?> deleteLog(@PathVariable Long id) {
+    ResponseEntity<EntityModel<Log>> deleteLog(@PathVariable Long id) {
         if (!logRepository.existsById(id)) {
             throw new LogNotFoundException(id);
         }
