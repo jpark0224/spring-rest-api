@@ -3,14 +3,13 @@ package exercisetracker.model;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.ser.Serializers;
 import jakarta.persistence.*;
 
 
 @Entity
 @Table(name = "exercise_set")
-public class Set {
-
-    private @Id @GeneratedValue Long id;
+public class Set extends BaseEntity {
 
     @ManyToOne
     @JsonBackReference
@@ -26,10 +25,6 @@ public class Set {
         this.reps = reps;
         this.weight = weight;
         this.exerciseCopy = exerciseCopy;
-    }
-
-    public Long getId() {
-        return this.id;
     }
 
     public int getReps() {
@@ -54,28 +49,5 @@ public class Set {
 
     public void setExerciseCopy(ExerciseCopy exerciseCopy) {
         this.exerciseCopy = exerciseCopy;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Set set = (Set) o;
-        return Objects.equals(id, set.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Set{" +
-                "id=" + id +
-                ", exerciseCopy=" + exerciseCopy +
-                ", reps=" + reps +
-                ", weight=" + weight +
-                '}';
     }
 }

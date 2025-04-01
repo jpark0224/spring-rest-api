@@ -16,9 +16,7 @@ import jakarta.persistence.*;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Log {
-
-    private @Id @GeneratedValue Long id;
+public class Log extends BaseEntity {
 
     @CreatedDate
     @Column(name = "timestamp", nullable = false, updatable = false)
@@ -40,14 +38,6 @@ public class Log {
 
     public Log(String name) {
         this.name = (name != null && !name.isEmpty()) ? name : "Awesome Workout";
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public LocalDateTime getTimestamp() {
@@ -106,30 +96,5 @@ public class Log {
     public void removeExerciseCopy(ExerciseCopy exerciseCopy) {
         exerciseCopies.remove(exerciseCopy);
         exerciseCopy.setLog(null);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Log log = (Log) o;
-        return Objects.equals(id, log.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Log{" +
-                "id=" + id +
-                ", timestamp=" + timestamp +
-                ", endTime=" + endTime +
-                ", duration=" + duration +
-                ", name='" + name + '\'' +
-                ", exercises=" + exerciseCopies +
-                '}';
     }
 }

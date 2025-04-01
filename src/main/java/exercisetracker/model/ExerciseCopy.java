@@ -10,13 +10,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 @Entity
-public class ExerciseCopy {
-    @Id
-    @GeneratedValue
-    private Long id;
-
-    private String name;
-    private String primaryMuscleGroup;
+public class ExerciseCopy extends AbstractExercise {
 
     @ManyToOne
     @JsonBackReference
@@ -32,8 +26,8 @@ public class ExerciseCopy {
     public ExerciseCopy() {}
 
     public ExerciseCopy(ExerciseTemplate template, Log log) {
-        this.name = template.getName();
-        this.primaryMuscleGroup = template.getPrimaryMuscleGroup();
+        this.setName(template.getName());
+        this.setPrimaryMuscleGroup(template.getPrimaryMuscleGroup());
         this.log = log;
         this.templateId = template.getId();
     }
@@ -50,30 +44,6 @@ public class ExerciseCopy {
 
     public void setLog(Log log) {
         this.log = log;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPrimaryMuscleGroup() {
-        return primaryMuscleGroup;
-    }
-
-    public void setPrimaryMuscleGroup(String primaryMuscleGroup) {
-        this.primaryMuscleGroup = primaryMuscleGroup;
     }
 
     public Long getTemplateId() {
@@ -95,29 +65,5 @@ public class ExerciseCopy {
 
     public void setSets(List<Set> sets) {
         this.sets = sets;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ExerciseCopy that = (ExerciseCopy) o;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
-
-    @Override
-    public String toString() {
-        return "ExerciseCopy{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", primaryMuscleGroup='" + primaryMuscleGroup + '\'' +
-                ", log=" + log +
-                ", sets=" + sets +
-                '}';
     }
 }
