@@ -67,7 +67,6 @@ class LogControllerTest {
         assertThat(result.getContent()).containsExactlyInAnyOrder(logModel1, logModel2);
         assertThat(result.getLinks())
                 .anyMatch(link -> link.getRel().value().equals("self"));
-
         result.getContent().forEach(model ->
                 assertThat(model.getLinks())
                         .anyMatch(link -> link.getRel().value().equals("self"))
@@ -108,7 +107,7 @@ class LogControllerTest {
     }
 
     @Test
-    void testCreateLog_returnsCreatedResponseWithLocationHeaderAndBody() {
+    void testPostLog_returnsCreatedResponseWithLocationHeaderAndBody() {
         Log requestLog = new Log();
 
         LocalDateTime timestamp = LocalDateTime.of(2099, 1, 1, 1, 0);
@@ -123,7 +122,7 @@ class LogControllerTest {
         when(logService.createLog(requestLog)).thenReturn(createdLog);
         when(assembler.toModel(createdLog)).thenReturn(logModel);
 
-        ResponseEntity<EntityModel<Log>> response = logController.newLog(requestLog);
+        ResponseEntity<EntityModel<Log>> response = logController.postLog(requestLog);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(Objects.requireNonNull(response.getHeaders().getLocation()).toString()).isEqualTo("/logs/1");

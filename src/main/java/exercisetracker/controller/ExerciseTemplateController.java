@@ -86,7 +86,7 @@ public class ExerciseTemplateController {
     }
 
     @DeleteMapping("/exercises/{id}")
-    ResponseEntity<?> deleteExerciseTemplate(@PathVariable Long id) {
+    ResponseEntity<EntityModel<ExerciseTemplate>> deleteExerciseTemplate(@PathVariable Long id) {
 
         exerciseTemplateRepository.deleteById(id);
 

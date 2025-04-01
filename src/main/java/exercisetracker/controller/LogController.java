@@ -53,7 +53,7 @@ public class LogController {
     }
 
     @PostMapping("/logs")
-    ResponseEntity<EntityModel<Log>> newLog(@RequestBody Log log) {
+    ResponseEntity<EntityModel<Log>> postLog(@RequestBody Log log) {
 
         Log newLog = logService.createLog(log);
 
