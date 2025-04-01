@@ -9,6 +9,7 @@ import exercisetracker.exception.ExerciseTemplateNotFoundException;
 import exercisetracker.repository.ExerciseTemplateRepository;
 import exercisetracker.assembler.ExerciseTemplateModelAssembler;
 import exercisetracker.model.ExerciseTemplate;
+import jakarta.validation.Valid;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -54,7 +55,7 @@ public class ExerciseTemplateController {
     }
 
     @PostMapping("/exercises")
-    ResponseEntity<EntityModel<ExerciseTemplate>> postExerciseTemplate(@RequestBody ExerciseTemplate exerciseTemplate) {
+    ResponseEntity<EntityModel<ExerciseTemplate>> postExerciseTemplate(@Valid @RequestBody ExerciseTemplate exerciseTemplate) {
 
         ExerciseTemplate newExerciseTemplate = exerciseTemplateRepository.save(exerciseTemplate);
 
@@ -64,7 +65,7 @@ public class ExerciseTemplateController {
     }
 
     @PutMapping("/exercises/{id}")
-    ResponseEntity<?> replaceExerciseTemplate(@RequestBody ExerciseTemplate newExerciseTemplate, @PathVariable Long id) {
+    ResponseEntity<?> replaceExerciseTemplate(@Valid @RequestBody ExerciseTemplate newExerciseTemplate, @PathVariable Long id) {
 
         ExerciseTemplate updatedExerciseTemplate = exerciseTemplateRepository.findById(id)
                 .map(exercise -> {
