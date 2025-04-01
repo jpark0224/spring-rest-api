@@ -43,7 +43,7 @@ class LogControllerTest {
     private LogController logController;
 
     @Test
-    void testAll_returnsCollectionModelWithLogs() {
+    void testGetAllLogs_returnsCollectionModelWithLogs() {
         Log log1 = new Log();
         log1.setId(1L);
 
@@ -62,7 +62,7 @@ class LogControllerTest {
         when(assembler.toModel(log1)).thenReturn(logModel1);
         when(assembler.toModel(log2)).thenReturn(logModel2);
 
-        CollectionModel<EntityModel<Log>> result = logController.all();
+        CollectionModel<EntityModel<Log>> result = logController.getAllLogs();
 
         assertThat(result.getContent()).containsExactlyInAnyOrder(logModel1, logModel2);
         assertThat(result.getLinks())
@@ -75,7 +75,7 @@ class LogControllerTest {
     }
 
     @Test
-    void testOne_returnsEntityModelWithLog_givenValidLogId() {
+    void testGetOneLog_returnsEntityModelWithLog_givenValidLogId() {
         Log log = new Log();
         Long logId = 1L;
         log.setId(logId);
@@ -86,7 +86,7 @@ class LogControllerTest {
         when(logRepository.findById(logId)).thenReturn(Optional.of(log));
         when(assembler.toModel(log)).thenReturn(logModel);
 
-        EntityModel<Log> result = logController.one(logId);
+        EntityModel<Log> result = logController.getOneLog(logId);
 
         assertThat(result.getContent()).isEqualTo(log);
         assertThat(result.getLinks())
@@ -94,7 +94,7 @@ class LogControllerTest {
     }
 
     @Test
-    void testOne_throwsException_givenInvalidLogId() {
+    void testGetOneLog_throwsException_givenInvalidLogId() {
 
         Long validLogId = 1L;
         Long invalidLogId = 999L;
@@ -104,7 +104,7 @@ class LogControllerTest {
 
         when(logRepository.findById(invalidLogId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> logController.one(invalidLogId)).isInstanceOf(LogNotFoundException.class);
+        assertThatThrownBy(() -> logController.getOneLog(invalidLogId)).isInstanceOf(LogNotFoundException.class);
     }
 
     @Test

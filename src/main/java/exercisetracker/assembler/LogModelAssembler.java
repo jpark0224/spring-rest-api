@@ -1,8 +1,6 @@
 package exercisetracker.assembler;
 
 import exercisetracker.controller.LogController;
-import exercisetracker.controller.SetController;
-import exercisetracker.model.ExerciseTemplate;
 import exercisetracker.model.Log;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -18,7 +16,7 @@ public class LogModelAssembler implements RepresentationModelAssembler<Log, Enti
     public EntityModel<Log> toModel(Log log) {
 
         return EntityModel.of(log,
-                WebMvcLinkBuilder.linkTo(methodOn(LogController.class).one(log.getId())).withSelfRel(),
-                linkTo(methodOn(LogController.class).all()).withRel("logs"));
+                WebMvcLinkBuilder.linkTo(methodOn(LogController.class).getOneLog(log.getId())).withSelfRel(),
+                linkTo(methodOn(LogController.class).getAllLogs()).withRel("logs"));
     }
 }

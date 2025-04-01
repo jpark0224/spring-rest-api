@@ -1,10 +1,8 @@
 package exercisetracker.controller;
 
 import exercisetracker.assembler.ExerciseCopyModelAssembler;
-import exercisetracker.assembler.LogModelAssembler;
 import exercisetracker.exception.ExerciseCopyNotFoundException;
 import exercisetracker.model.ExerciseCopy;
-import exercisetracker.model.Log;
 import exercisetracker.repository.ExerciseCopyRepository;
 import exercisetracker.service.LogService;
 import org.springframework.hateoas.CollectionModel;
@@ -34,17 +32,17 @@ public class ExerciseCopyController {
     }
 
     @GetMapping
-    public CollectionModel<EntityModel<ExerciseCopy>> allInLog(@PathVariable Long logId) {
+    public CollectionModel<EntityModel<ExerciseCopy>> getAllExerciseCopiesInLog(@PathVariable Long logId) {
         List<EntityModel<ExerciseCopy>> exercises = exerciseCopyRepository.findByLogId(logId).stream()
                 .map(exerciseCopyModelAssembler::toModel)
                 .collect(Collectors.toList());
 
         return CollectionModel.of(exercises,
-                linkTo(methodOn(ExerciseCopyController.class).allInLog(logId)).withSelfRel());
+                linkTo(methodOn(ExerciseCopyController.class).getAllExerciseCopiesInLog(logId)).withSelfRel());
     }
 
     @GetMapping("/{exerciseCopyId}")
-    public EntityModel<ExerciseCopy> one(@PathVariable Long logId, @PathVariable Long exerciseCopyId) {
+    public EntityModel<ExerciseCopy> getOneExerciseCopy(@PathVariable Long logId, @PathVariable Long exerciseCopyId) {
 
         ExerciseCopy exerciseCopy = exerciseCopyRepository.findById(exerciseCopyId) //
                 .orElseThrow(() -> new ExerciseCopyNotFoundException(exerciseCopyId));
@@ -53,19 +51,19 @@ public class ExerciseCopyController {
     }
 
     @PostMapping("/from-template/{templateId}")
-    public ResponseEntity<?> addExerciseToLog(
+    public ResponseEntity<?> addExerciseCopyToLog(
             @PathVariable Long logId,
             @PathVariable Long templateId) {
 
         ExerciseCopy newExercise = logService.addExerciseToLog(logId, templateId);
 
         return ResponseEntity
-                .created(linkTo(methodOn(ExerciseCopyController.class).one(logId, newExercise.getId())).toUri())
+                .created(linkTo(methodOn(ExerciseCopyController.class).getOneExerciseCopy(logId, newExercise.getId())).toUri())
                 .body(exerciseCopyModelAssembler.toModel(newExercise));
     }
 
     @DeleteMapping("/{exerciseCopyId}")
-    ResponseEntity<?> deleteExercise(@PathVariable Long logId, @PathVariable Long exerciseCopyId) {
+    ResponseEntity<?> deleteExerciseCopy(@PathVariable Long logId, @PathVariable Long exerciseCopyId) {
 
         logService.removeExerciseFromLog(logId, exerciseCopyId);
 

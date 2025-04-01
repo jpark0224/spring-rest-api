@@ -43,8 +43,8 @@ public class SetController {
     }
 
     @GetMapping
-    public CollectionModel<EntityModel<Set>> allInExercise(@PathVariable Long logId,
-                                                           @PathVariable Long exerciseCopyId) {
+    public CollectionModel<EntityModel<Set>> getAllSetsInExercise(@PathVariable Long logId,
+                                                                  @PathVariable Long exerciseCopyId) {
 
         ExerciseCopy exerciseCopy = exerciseCopyRepository.findById(exerciseCopyId) //
                 .orElseThrow(() -> new ExerciseCopyNotFoundException(exerciseCopyId));
@@ -54,13 +54,13 @@ public class SetController {
                 .collect(Collectors.toList());
 
         return CollectionModel.of(sets,
-                linkTo(methodOn(SetController.class).allInExercise(logId, exerciseCopyId)).withSelfRel());
+                linkTo(methodOn(SetController.class).getAllSetsInExercise(logId, exerciseCopyId)).withSelfRel());
     }
 
     @GetMapping("/{setId}")
-    public EntityModel<Set> one(@PathVariable Long logId,
-                                @PathVariable Long exerciseCopyId,
-                                @PathVariable Long setId) {
+    public EntityModel<Set> getOneSet(@PathVariable Long logId,
+                                      @PathVariable Long exerciseCopyId,
+                                      @PathVariable Long setId) {
 
         Set set = setRepository.findById(setId) //
                 .orElseThrow(() -> new SetNotFoundException(setId));
@@ -69,7 +69,7 @@ public class SetController {
     }
 
     @PostMapping
-    ResponseEntity<EntityModel<Set>> newSet(@PathVariable Long logId,
+    ResponseEntity<EntityModel<Set>> postSet(@PathVariable Long logId,
                                             @PathVariable Long exerciseCopyId,
                                             @RequestBody @Valid SetDTO setDto) {
 
@@ -78,7 +78,7 @@ public class SetController {
         Set savedSet = setRepository.save(newSet);
 
         return ResponseEntity
-                .created(linkTo(methodOn(SetController.class).one(logId, exerciseCopyId, newSet.getId())).toUri())
+                .created(linkTo(methodOn(SetController.class).getOneSet(logId, exerciseCopyId, newSet.getId())).toUri())
                 .body(assembler.toModel(savedSet));
     }
 

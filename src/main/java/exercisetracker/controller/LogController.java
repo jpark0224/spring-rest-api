@@ -31,7 +31,7 @@ public class LogController {
     }
 
     @GetMapping("/logs")
-    public CollectionModel<EntityModel<Log>> all() {
+    public CollectionModel<EntityModel<Log>> getAllLogs() {
 
         List<EntityModel<Log>> logs = logRepository.findAll().stream()
                 .map(assembler::toModel)
@@ -39,12 +39,12 @@ public class LogController {
 
         return CollectionModel.of(
                 logs,
-                linkTo(methodOn(LogController.class).all()).withSelfRel()
+                linkTo(methodOn(LogController.class).getAllLogs()).withSelfRel()
         );
     }
 
     @GetMapping("/logs/{id}")
-    public EntityModel<Log> one(@PathVariable Long id) {
+    public EntityModel<Log> getOneLog(@PathVariable Long id) {
 
         Log logs = logRepository.findById(id)
                 .orElseThrow(() -> new LogNotFoundException(id));
@@ -58,7 +58,7 @@ public class LogController {
         Log newLog = logService.createLog(log);
 
         return ResponseEntity
-                .created(linkTo(methodOn(LogController.class).one(newLog.getId())).toUri())
+                .created(linkTo(methodOn(LogController.class).getOneLog(newLog.getId())).toUri())
                 .body(assembler.toModel(newLog));
     }
 
@@ -68,7 +68,7 @@ public class LogController {
         Log completedLog = logService.completeLog(id);
 
         return ResponseEntity
-                .created(linkTo(methodOn(LogController.class).one(completedLog.getId())).toUri())
+                .created(linkTo(methodOn(LogController.class).getOneLog(completedLog.getId())).toUri())
                 .body(assembler.toModel(completedLog));
     }
 

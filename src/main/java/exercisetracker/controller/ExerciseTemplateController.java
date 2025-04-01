@@ -34,18 +34,18 @@ public class ExerciseTemplateController {
     }
 
     @GetMapping("/exercises")
-    public CollectionModel<EntityModel<ExerciseTemplate>> all() {
+    public CollectionModel<EntityModel<ExerciseTemplate>> getAllExerciseTemplates() {
 
         List<EntityModel<ExerciseTemplate>> exercises = exerciseTemplateRepository.findAll().stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
         return CollectionModel.of(exercises,
-                linkTo(methodOn(ExerciseTemplateController.class).all()).withSelfRel());
+                linkTo(methodOn(ExerciseTemplateController.class).getAllExerciseTemplates()).withSelfRel());
     }
 
     @GetMapping("/exercises/{id}")
-    public EntityModel<ExerciseTemplate> one(@PathVariable Long id) {
+    public EntityModel<ExerciseTemplate> getOneExerciseTemplate(@PathVariable Long id) {
 
         ExerciseTemplate exerciseTemplate = exerciseTemplateRepository.findById(id) //
                 .orElseThrow(() -> new ExerciseTemplateNotFoundException(id));
@@ -54,17 +54,17 @@ public class ExerciseTemplateController {
     }
 
     @PostMapping("/exercises")
-    ResponseEntity<EntityModel<ExerciseTemplate>> newExercise(@RequestBody ExerciseTemplate exerciseTemplate) {
+    ResponseEntity<EntityModel<ExerciseTemplate>> postExerciseTemplate(@RequestBody ExerciseTemplate exerciseTemplate) {
 
         ExerciseTemplate newExerciseTemplate = exerciseTemplateRepository.save(exerciseTemplate);
 
         return ResponseEntity //
-                .created(linkTo(methodOn(ExerciseTemplateController.class).one(newExerciseTemplate.getId())).toUri()) //
+                .created(linkTo(methodOn(ExerciseTemplateController.class).getOneExerciseTemplate(newExerciseTemplate.getId())).toUri()) //
                 .body(assembler.toModel(newExerciseTemplate));
     }
 
     @PutMapping("/exercises/{id}")
-    ResponseEntity<?> replaceExercise(@RequestBody ExerciseTemplate newExerciseTemplate, @PathVariable Long id) {
+    ResponseEntity<?> replaceExerciseTemplate(@RequestBody ExerciseTemplate newExerciseTemplate, @PathVariable Long id) {
 
         ExerciseTemplate updatedExerciseTemplate = exerciseTemplateRepository.findById(id)
                 .map(exercise -> {
@@ -85,7 +85,7 @@ public class ExerciseTemplateController {
     }
 
     @DeleteMapping("/exercises/{id}")
-    ResponseEntity<?> deleteExercise(@PathVariable Long id) {
+    ResponseEntity<?> deleteExerciseTemplate(@PathVariable Long id) {
 
         exerciseTemplateRepository.deleteById(id);
 
