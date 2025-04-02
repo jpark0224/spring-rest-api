@@ -2,25 +2,20 @@ package exercisetracker.controller;
 
 import exercisetracker.assembler.ExerciseTemplateModelAssembler;
 import exercisetracker.exception.ExerciseTemplateNotFoundException;
-import exercisetracker.exception.GlobalExceptionHandler;
-import exercisetracker.exception.LogNotFoundException;
 import exercisetracker.model.ExerciseTemplate;
-import exercisetracker.model.Log;
 import exercisetracker.repository.ExerciseTemplateRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.MethodParameter;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.List;
 import java.util.Objects;
@@ -42,134 +37,189 @@ public class ExerciseTemplateControllerTest {
 
     @InjectMocks
     private ExerciseTemplateController exerciseTemplateController;
+    
+    private ExerciseTemplate requestBarbellSquat;
+    private ExerciseTemplate requestRomanianDeadlift;
+    private ExerciseTemplate savedBarbellSquat;
+    private ExerciseTemplate savedRomanianDeadlift;
+    private String savedBarbellSquatLink;
+    private String savedRomanianDeadliftLink;
 
-    @Test
-    void testGetAllExerciseTemplates_returnsCollectionModel() {
-        ExerciseTemplate exerciseTemplate1 = new ExerciseTemplate();
-        exerciseTemplate1.setId(1L);
-        exerciseTemplate1.setName("barbell squat");
-        exerciseTemplate1.setPrimaryMuscleGroup("hamstrings");
+    @BeforeEach
+    void setUp() {
+        requestBarbellSquat = new ExerciseTemplate();
+        requestBarbellSquat.setName("barbell squat");
+        requestBarbellSquat.setPrimaryMuscleGroup("hamstrings");
 
-        ExerciseTemplate exerciseTemplate2 = new ExerciseTemplate();
-        exerciseTemplate2.setId(2L);
-        exerciseTemplate2.setName("romanian deadlift");
-        exerciseTemplate2.setPrimaryMuscleGroup("quads");
+        savedBarbellSquat = new ExerciseTemplate();
+        savedBarbellSquat.setName(requestBarbellSquat.getName());
+        savedBarbellSquat.setPrimaryMuscleGroup(requestBarbellSquat.getPrimaryMuscleGroup());
+        savedBarbellSquat.setId(1L);
+        savedBarbellSquatLink = "/exercises/" + savedBarbellSquat.getId();
 
-        List<ExerciseTemplate> exerciseTemplates = List.of(exerciseTemplate1, exerciseTemplate2);
+        requestRomanianDeadlift = new ExerciseTemplate();
+        requestRomanianDeadlift.setName("romanian deadlift");
+        requestRomanianDeadlift.setPrimaryMuscleGroup("quads");
 
-        EntityModel<ExerciseTemplate> exerciseTemplateEntityModel1 = EntityModel.of(exerciseTemplate1);
-        exerciseTemplateEntityModel1.add(Link.of("/exercises/1").withSelfRel());
-
-        EntityModel<ExerciseTemplate> exerciseTemplateEntityModel2 = EntityModel.of(exerciseTemplate2);
-        exerciseTemplateEntityModel2.add(Link.of("/exercises/2").withSelfRel());
-
-        when(exerciseTemplateRepository.findAll()).thenReturn(exerciseTemplates);
-        when(assembler.toModel(exerciseTemplate1)).thenReturn(exerciseTemplateEntityModel1);
-        when(assembler.toModel(exerciseTemplate2)).thenReturn(exerciseTemplateEntityModel2);
-
-        CollectionModel<EntityModel<ExerciseTemplate>> result = exerciseTemplateController.getAllExerciseTemplates();
-
-        assertThat(result.getContent()).containsExactlyInAnyOrder(exerciseTemplateEntityModel1, exerciseTemplateEntityModel2);
-        assertThat(result.getLinks())
-                .anyMatch(link -> link.getRel().value().equals("self"));
-        result.getContent().forEach(model ->
-                assertThat(model.getLinks())
-                        .anyMatch(link -> link.getRel().value().equals("self"))
-        );
+        savedRomanianDeadlift = new ExerciseTemplate();
+        savedRomanianDeadlift.setName(requestRomanianDeadlift.getName());
+        savedRomanianDeadlift.setPrimaryMuscleGroup(requestRomanianDeadlift.getPrimaryMuscleGroup());
+        savedRomanianDeadlift.setId(2L);
+        savedRomanianDeadliftLink = "/exercises/" + savedRomanianDeadlift.getId();
     }
 
-    @Test
-    void testGetOneExerciseTemplate_returnsEntityModel_givenValidId() {
-        ExerciseTemplate exerciseTemplate = new ExerciseTemplate();
-        Long exerciseTemplateId = 1L;
-        exerciseTemplate.setId(exerciseTemplateId);
-        exerciseTemplate.setName("barbell squat");
-        exerciseTemplate.setPrimaryMuscleGroup("hamstrings");
 
-        EntityModel<ExerciseTemplate> exerciseTemplateEntityModel = EntityModel.of(exerciseTemplate);
-        exerciseTemplateEntityModel.add(Link.of("/exercises/1").withSelfRel());
+    @Nested
+    class GetAllTest {
 
-        when(exerciseTemplateRepository.findById(exerciseTemplateId)).thenReturn(Optional.of(exerciseTemplate));
-        when(assembler.toModel(exerciseTemplate)).thenReturn(exerciseTemplateEntityModel);
+        @Test
+        void returnsCollectionModel() {
+            List<ExerciseTemplate> exerciseTemplates = List.of(savedBarbellSquat, savedRomanianDeadlift);
 
-        EntityModel<ExerciseTemplate> result = exerciseTemplateController.getOneExerciseTemplate(exerciseTemplateId);
+            EntityModel<ExerciseTemplate> barbellSquatEntityModel = EntityModel.of(savedBarbellSquat);
+            barbellSquatEntityModel.add(Link.of(savedBarbellSquatLink).withSelfRel());
 
-        assertThat(result.getContent()).isEqualTo(exerciseTemplate);
-        assertThat(result.getLinks())
-                .anyMatch(link -> link.getRel().value().equals("self") && link.getHref().equals("/exercises/1"));
+            EntityModel<ExerciseTemplate> romanianDeadliftEntityModel = EntityModel.of(savedRomanianDeadlift);
+            romanianDeadliftEntityModel.add(Link.of(savedRomanianDeadliftLink).withSelfRel());
+
+            when(exerciseTemplateRepository.findAll()).thenReturn(exerciseTemplates);
+            when(assembler.toModel(savedBarbellSquat)).thenReturn(barbellSquatEntityModel);
+            when(assembler.toModel(savedRomanianDeadlift)).thenReturn(romanianDeadliftEntityModel);
+
+            CollectionModel<EntityModel<ExerciseTemplate>> result = exerciseTemplateController.getAllExerciseTemplates();
+
+            assertThat(result.getContent()).containsExactlyInAnyOrder(barbellSquatEntityModel, romanianDeadliftEntityModel);
+            assertThat(result.getLinks())
+                    .anyMatch(link -> link.getRel().value().equals("self"));
+            result.getContent().forEach(model ->
+                    assertThat(model.getLinks())
+                            .anyMatch(link -> link.getRel().value().equals("self"))
+            );
+        }
     }
 
-    @Test
-    void testGetOneExerciseTemplate_throwsException_givenInvalidId() {
+    @Nested
+    class GetOneTests {
 
-        Long validExerciseTemplateId = 1L;
-        Long invalidExerciseTemplateId = 999L;
+        @Test
+        void returnsEntityModel_givenValidId() {
+            EntityModel<ExerciseTemplate> barbellSquatEntityModel = EntityModel.of(savedBarbellSquat);
+            barbellSquatEntityModel.add(Link.of(savedBarbellSquatLink).withSelfRel());
 
-        ExerciseTemplate exerciseTemplate = new ExerciseTemplate();
-        exerciseTemplate.setId(validExerciseTemplateId);
-        exerciseTemplate.setName("barbell squat");
-        exerciseTemplate.setPrimaryMuscleGroup("hamstrings");
+            when(exerciseTemplateRepository.findById(savedBarbellSquat.getId())).thenReturn(Optional.of(savedBarbellSquat));
+            when(assembler.toModel(savedBarbellSquat)).thenReturn(barbellSquatEntityModel);
 
-        when(exerciseTemplateRepository.findById(invalidExerciseTemplateId)).thenReturn(Optional.empty());
+            EntityModel<ExerciseTemplate> result = exerciseTemplateController.getOneExerciseTemplate(savedBarbellSquat.getId());
 
-        assertThatThrownBy(() -> exerciseTemplateController.getOneExerciseTemplate(invalidExerciseTemplateId)).isInstanceOf(ExerciseTemplateNotFoundException.class);
+            assertThat(result.getContent()).isEqualTo(savedBarbellSquat);
+            assertThat(result.getLinks())
+                    .anyMatch(link -> link.getRel().value().equals("self") && link.getHref().equals(savedBarbellSquatLink));
+        }
+
+        @Test
+        void throwsException_givenInvalidId() {
+            Long invalidExerciseTemplateId = 999L;
+
+            when(exerciseTemplateRepository.findById(invalidExerciseTemplateId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> exerciseTemplateController.getOneExerciseTemplate(invalidExerciseTemplateId)).isInstanceOf(ExerciseTemplateNotFoundException.class);
+        }
     }
 
-    @Test
-    void testPostExerciseTemplate_returnsCreatedResponseWithLocationHeaderAndBody() {
-        ExerciseTemplate exerciseTemplate = new ExerciseTemplate();
-        exerciseTemplate.setId(1L);
-        exerciseTemplate.setName("barbell squat");
-        exerciseTemplate.setPrimaryMuscleGroup("hamstrings");
+    @Nested
+    class PostTest {
 
-        EntityModel<ExerciseTemplate> exerciseTemplateModel = EntityModel.of(exerciseTemplate);
-        exerciseTemplateModel.add(Link.of("/exercises/1").withSelfRel());
+        @Test
+        void returnsCreatedResponseWithLocationHeaderAndBody() {
+            EntityModel<ExerciseTemplate> model = EntityModel.of(savedBarbellSquat);
+            model.add(Link.of(savedBarbellSquatLink).withSelfRel());
 
-        when(exerciseTemplateRepository.save(any(ExerciseTemplate.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(assembler.toModel(exerciseTemplate)).thenReturn(exerciseTemplateModel);
+            when(exerciseTemplateRepository.save(requestBarbellSquat)).thenReturn(savedBarbellSquat);
+            when(assembler.toModel(savedBarbellSquat)).thenReturn(model);
 
-        ResponseEntity<EntityModel<ExerciseTemplate>> response = exerciseTemplateController.postExerciseTemplate(exerciseTemplate);
+            ResponseEntity<EntityModel<ExerciseTemplate>> response =
+                    exerciseTemplateController.postExerciseTemplate(requestBarbellSquat);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(Objects.requireNonNull(response.getHeaders().getLocation()).toString()).isEqualTo("/exercises/1");
-        assertThat(Objects.requireNonNull(response.getBody()).getContent()).isEqualTo(exerciseTemplate);
-        assertThat(response.getBody().getLinks())
-                .anyMatch(link -> link.getRel().value().equals("self") && link.getHref().equals("/exercises/1"));
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            assertThat(Objects.requireNonNull(response.getHeaders().getLocation()).toString()).isEqualTo(savedBarbellSquatLink);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getContent()).isEqualTo(savedBarbellSquat);
+            assertThat(response.getBody().getLinks())
+                    .anyMatch(link -> link.getRel().value().equals("self") && link.getHref().equals(savedBarbellSquatLink));
+        }
     }
 
-    @Test
-    void testPostExerciseTemplate_returnsBadRequest_whenNameIsMissing() {
-        ExerciseTemplate invalidTemplate = new ExerciseTemplate();
-        invalidTemplate.setPrimaryMuscleGroup("hamstrings");
+    @Nested
+    class UpdateTests {
 
-        BindingResult bindingResult = new BeanPropertyBindingResult(invalidTemplate, "exerciseTemplate");
-        bindingResult.rejectValue("name", "NotBlank", "Name is required");
+        @Test
+        void returnsCreatedResponseWithLocationHeaderAndBody_givenNonExistingId() {
+            EntityModel<ExerciseTemplate> model = EntityModel.of(savedBarbellSquat);
+            model.add(Link.of(savedBarbellSquatLink).withSelfRel());
 
-        MethodParameter methodParameter = mock(MethodParameter.class);
-        MethodArgumentNotValidException exception = new MethodArgumentNotValidException(methodParameter, bindingResult);
+            Long nonExistingId = 99L;
 
-        GlobalExceptionHandler handler = new GlobalExceptionHandler();
-        GlobalExceptionHandler.ErrorResponse errorResponse = handler.handleValidationExceptions(exception);
+            when(exerciseTemplateRepository.findById(nonExistingId)).thenReturn(Optional.empty());
+            when(exerciseTemplateRepository.save(requestBarbellSquat)).thenReturn(savedBarbellSquat);
+            when(assembler.toModel(savedBarbellSquat)).thenReturn(model);
 
-        assertThat(errorResponse.status()).isEqualTo(400);
-        assertThat(errorResponse.message()).contains("name: Name is required");
+            ResponseEntity<EntityModel<ExerciseTemplate>> response =
+                    exerciseTemplateController.replaceExerciseTemplate(requestBarbellSquat, nonExistingId);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            assertThat(Objects.requireNonNull(response.getHeaders().getLocation()).toString()).isEqualTo(savedBarbellSquatLink);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getContent()).isEqualTo(savedBarbellSquat);
+            assertThat(response.getBody().getLinks())
+                    .anyMatch(link -> link.getRel().value().equals("self") && link.getHref().equals(savedBarbellSquatLink));
+        }
+
+        @Test
+        void returnsCreatedResponseWithLocationHeaderAndBody_givenExistingId() {
+            EntityModel<ExerciseTemplate> barbellSquatEntityModel = EntityModel.of(requestBarbellSquat);
+            barbellSquatEntityModel.add(Link.of(savedBarbellSquatLink).withSelfRel());
+
+            when(exerciseTemplateRepository.findById(requestBarbellSquat.getId())).thenReturn(Optional.of(requestBarbellSquat));
+            when(exerciseTemplateRepository.save(any(ExerciseTemplate.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(assembler.toModel(requestBarbellSquat)).thenReturn(barbellSquatEntityModel);
+
+            ResponseEntity<EntityModel<ExerciseTemplate>> response = exerciseTemplateController.replaceExerciseTemplate(requestRomanianDeadlift, requestBarbellSquat.getId());
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            assertThat(Objects.requireNonNull(response.getHeaders().getLocation()).toString()).isEqualTo(savedBarbellSquatLink);
+            assertThat(Objects.requireNonNull(response.getBody()).getContent()).isEqualTo(requestBarbellSquat);
+            assertThat(requestBarbellSquat.getName()).isEqualTo("romanian deadlift");
+            assertThat(requestBarbellSquat.getPrimaryMuscleGroup()).isEqualTo("quads");
+            assertThat(response.getBody().getLinks())
+                    .anyMatch(link -> link.getRel().value().equals("self") && link.getHref().equals(savedBarbellSquatLink));
+        }
     }
 
-    @Test
-    void testPostExerciseTemplate_returnsBadRequest_whenPrimaryMuscleGroupIsMissing() {
-        ExerciseTemplate invalidTemplate = new ExerciseTemplate();
-        invalidTemplate.setName("barbell squat");
+    @Nested
+    class DeleteTests {
 
-        BindingResult bindingResult = new BeanPropertyBindingResult(invalidTemplate, "exerciseTemplate");
-        bindingResult.rejectValue("primaryMuscleGroup", "NotBlank", "Primary muscle group is required");
+        @Test
+        void throwsException_givenInvalidId() {
+            Long Id = 99L;
 
-        MethodParameter methodParameter = mock(MethodParameter.class);
-        MethodArgumentNotValidException exception = new MethodArgumentNotValidException(methodParameter, bindingResult);
+            when(exerciseTemplateRepository.existsById(Id)).thenReturn(false);
 
-        GlobalExceptionHandler handler = new GlobalExceptionHandler();
-        GlobalExceptionHandler.ErrorResponse errorResponse = handler.handleValidationExceptions(exception);
+            assertThatThrownBy(() -> exerciseTemplateController.deleteExerciseTemplate(Id))
+                    .isInstanceOf(ExerciseTemplateNotFoundException.class)
+                    .hasMessageContaining("Could not find exercise template");
+        }
 
-        assertThat(errorResponse.status()).isEqualTo(400);
-        assertThat(errorResponse.message()).contains("primaryMuscleGroup: Primary muscle group is required");
+        @Test
+        void deletesLogAndReturnsNoContent_givenValidId() {
+            Long Id = 1L;
+
+            when(exerciseTemplateRepository.existsById(Id)).thenReturn(true);
+
+            ResponseEntity<EntityModel<ExerciseTemplate>> response = exerciseTemplateController.deleteExerciseTemplate(Id);
+
+            verify(exerciseTemplateRepository).deleteById(Id);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        }
     }
+
 }

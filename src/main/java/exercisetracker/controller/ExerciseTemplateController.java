@@ -65,7 +65,7 @@ public class ExerciseTemplateController {
     }
 
     @PutMapping("/exercises/{id}")
-    ResponseEntity<?> replaceExerciseTemplate(@Valid @RequestBody ExerciseTemplate newExerciseTemplate, @PathVariable Long id) {
+    ResponseEntity<EntityModel<ExerciseTemplate>> replaceExerciseTemplate(@Valid @RequestBody ExerciseTemplate newExerciseTemplate, @PathVariable Long id) {
 
         ExerciseTemplate updatedExerciseTemplate = exerciseTemplateRepository.findById(id)
                 .map(exercise -> {
@@ -82,11 +82,13 @@ public class ExerciseTemplateController {
         return ResponseEntity
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(entityModel);
-
     }
 
     @DeleteMapping("/exercises/{id}")
     ResponseEntity<EntityModel<ExerciseTemplate>> deleteExerciseTemplate(@PathVariable Long id) {
+        if (!exerciseTemplateRepository.existsById(id)) {
+            throw new ExerciseTemplateNotFoundException(id);
+        }
 
         exerciseTemplateRepository.deleteById(id);
 
