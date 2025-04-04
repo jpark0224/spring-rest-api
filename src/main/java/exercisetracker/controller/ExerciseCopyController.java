@@ -2,9 +2,11 @@ package exercisetracker.controller;
 
 import exercisetracker.assembler.ExerciseCopyModelAssembler;
 import exercisetracker.exception.ExerciseCopyNotFoundException;
+import exercisetracker.exception.ExerciseTemplateNotFoundException;
 import exercisetracker.exception.LogNotFoundException;
 import exercisetracker.model.ExerciseCopy;
 import exercisetracker.repository.ExerciseCopyRepository;
+import exercisetracker.repository.ExerciseTemplateRepository;
 import exercisetracker.repository.LogRepository;
 import exercisetracker.service.LogService;
 import org.springframework.hateoas.CollectionModel;
@@ -24,13 +26,15 @@ public class ExerciseCopyController {
 
     private final LogService logService;
     private final ExerciseCopyRepository exerciseCopyRepository;
+    private final ExerciseTemplateRepository exerciseTemplateRepository;
     private final ExerciseCopyModelAssembler exerciseCopyModelAssembler;
     private final LogRepository logRepository;
 
-    public ExerciseCopyController(LogService logService, ExerciseCopyRepository exerciseCopyRepository, ExerciseCopyModelAssembler assembler, LogRepository logRepository) {
+    public ExerciseCopyController(LogService logService, ExerciseCopyRepository exerciseCopyRepository, ExerciseTemplateRepository exerciseTemplateRepository, ExerciseCopyModelAssembler assembler, LogRepository logRepository) {
 
         this.logService = logService;
         this.exerciseCopyRepository = exerciseCopyRepository;
+        this.exerciseTemplateRepository = exerciseTemplateRepository;
         this.exerciseCopyModelAssembler = assembler;
         this.logRepository = logRepository;
     }
@@ -62,12 +66,16 @@ public class ExerciseCopyController {
     }
 
     @PostMapping("/from-template/{templateId}")
-    public ResponseEntity<?> addExerciseCopyToLog(
+    public ResponseEntity<EntityModel<ExerciseCopy>> addExerciseCopyToLog(
             @PathVariable Long logId,
             @PathVariable Long templateId) {
 
         if (!logRepository.existsById(logId)) {
             throw new LogNotFoundException(logId);
+        }
+
+        if (!exerciseTemplateRepository.existsById(templateId)) {
+            throw new ExerciseTemplateNotFoundException(logId);
         }
 
         ExerciseCopy newExercise = logService.addExerciseToLog(logId, templateId);
@@ -78,7 +86,7 @@ public class ExerciseCopyController {
     }
 
     @DeleteMapping("/{exerciseCopyId}")
-    ResponseEntity<?> deleteExerciseCopy(@PathVariable Long logId, @PathVariable Long exerciseCopyId) {
+    ResponseEntity<EntityModel<ExerciseCopy>> deleteExerciseCopy(@PathVariable Long logId, @PathVariable Long exerciseCopyId) {
         if (!logRepository.existsById(logId)) {
             throw new LogNotFoundException(logId);
         }

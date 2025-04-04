@@ -2,11 +2,14 @@ package exercisetracker.controller;
 
 import exercisetracker.assembler.ExerciseCopyModelAssembler;
 import exercisetracker.exception.ExerciseCopyNotFoundException;
+import exercisetracker.exception.ExerciseTemplateNotFoundException;
 import exercisetracker.exception.LogNotFoundException;
 import exercisetracker.model.ExerciseCopy;
 import exercisetracker.model.Log;
 import exercisetracker.repository.ExerciseCopyRepository;
+import exercisetracker.repository.ExerciseTemplateRepository;
 import exercisetracker.repository.LogRepository;
+import exercisetracker.service.LogService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,13 +20,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ExerciseCopyControllerTest {
@@ -35,7 +41,13 @@ public class ExerciseCopyControllerTest {
     private ExerciseCopyRepository exerciseCopyRepository;
 
     @Mock
+    private ExerciseTemplateRepository exerciseTemplateRepository;
+
+    @Mock
     private LogRepository logRepository;
+
+    @Mock
+    private LogService logService;
 
     @InjectMocks
     private ExerciseCopyController exerciseCopyController;
@@ -44,9 +56,7 @@ public class ExerciseCopyControllerTest {
     private Long validLogId;
     private Long invalidLogId;
     private ExerciseCopy savedBarbellSquatCopy;
-    private ExerciseCopy savedRomanianDeadliftCopy;
     private String savedBarbellSquatCopyLink;
-    private String savedRomanianDeadliftCopyLink;
 
     @BeforeEach
     void setUp() {
@@ -61,17 +71,23 @@ public class ExerciseCopyControllerTest {
         savedBarbellSquatCopy.setPrimaryMuscleGroup("hamstrings");
         savedBarbellSquatCopy.setLog(savedLog);
         savedBarbellSquatCopyLink = "/logs/" + validLogId + "/exercises/" + savedBarbellSquatCopy.getId();
-
-        savedRomanianDeadliftCopy = new ExerciseCopy();
-        savedRomanianDeadliftCopy.setId(2L);
-        savedRomanianDeadliftCopy.setName("romanian deadlift");
-        savedRomanianDeadliftCopy.setPrimaryMuscleGroup("quads");
-        savedRomanianDeadliftCopy.setLog(savedLog);
-        savedRomanianDeadliftCopyLink = "/logs/" + validLogId + "/exercises/" + savedRomanianDeadliftCopy.getId();
     }
 
     @Nested
     class GetAllTest {
+
+        private ExerciseCopy savedRomanianDeadliftCopy;
+        private String savedRomanianDeadliftCopyLink;
+
+        @BeforeEach
+        void init() {
+            savedRomanianDeadliftCopy = new ExerciseCopy();
+            savedRomanianDeadliftCopy.setId(2L);
+            savedRomanianDeadliftCopy.setName("romanian deadlift");
+            savedRomanianDeadliftCopy.setPrimaryMuscleGroup("quads");
+            savedRomanianDeadliftCopy.setLog(savedLog);
+            savedRomanianDeadliftCopyLink = "/logs/" + validLogId + "/exercises/" + savedRomanianDeadliftCopy.getId();
+        }
 
         @Test
         void throwsException_givenInvalidLogId() {
@@ -139,6 +155,84 @@ public class ExerciseCopyControllerTest {
 
             assertThatThrownBy(() -> exerciseCopyController.getOneExerciseCopyInLog(invalidLogId, savedBarbellSquatCopy.getId()))
                     .isInstanceOf(ExerciseCopyNotFoundException.class);
+        }
+    }
+
+    @Nested
+    class PostTests {
+
+        private final Long validTemplateId = 1L;
+        private final Long invalidTemplateId = 99L;
+
+        @Test
+        void throwsException_givenInvalidLogId() {
+            when(logRepository.existsById(invalidLogId)).thenReturn(false);
+
+            assertThatThrownBy(() -> exerciseCopyController.addExerciseCopyToLog(invalidLogId, validTemplateId))
+                    .isInstanceOf(LogNotFoundException.class);
+        }
+
+        @Test
+        void throwsException_givenInvalidTemplateId() {
+            when(logRepository.existsById(validLogId)).thenReturn(true);
+            when(exerciseTemplateRepository.existsById(invalidTemplateId)).thenReturn(false);
+
+            assertThatThrownBy(() -> exerciseCopyController.addExerciseCopyToLog(validLogId, invalidTemplateId))
+                    .isInstanceOf(ExerciseTemplateNotFoundException.class);
+        }
+
+        @Test
+        void returnsCreatedResponseWithLocationHeaderAndBody() {
+            EntityModel<ExerciseCopy> barbellSquatModel = EntityModel.of(savedBarbellSquatCopy);
+            barbellSquatModel.add(Link.of(savedBarbellSquatCopyLink).withSelfRel());
+
+            when(logRepository.existsById(validLogId)).thenReturn(true);
+            when(exerciseTemplateRepository.existsById(validTemplateId)).thenReturn(true);
+            when(logService.addExerciseToLog(validLogId, validTemplateId)).thenReturn(savedBarbellSquatCopy);
+            when(assembler.toModel(savedBarbellSquatCopy)).thenReturn(barbellSquatModel);
+
+            ResponseEntity<EntityModel<ExerciseCopy>> response = exerciseCopyController.addExerciseCopyToLog(validLogId, validTemplateId);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            assertThat(Objects.requireNonNull(response.getHeaders().getLocation()).toString()).isEqualTo(savedBarbellSquatCopyLink);
+            assertThat(Objects.requireNonNull(response.getBody()).getContent()).isEqualTo(savedBarbellSquatCopy);
+            assertThat(response.getBody().getLinks())
+                    .anyMatch(link -> link.getRel().value().equals("self") && link.getHref().equals(savedBarbellSquatCopyLink));
+        }
+    }
+
+    @Nested
+    class DeleteTests {
+
+        private final Long validExerciseCopyId = 1L;
+        private final Long invalidExerciseCopyId = 99L;
+
+        @Test
+        void throwsException_givenInvalidLogId() {
+            when(logRepository.existsById(invalidLogId)).thenReturn(false);
+
+            assertThatThrownBy(() -> exerciseCopyController.deleteExerciseCopy(invalidLogId, validExerciseCopyId))
+                    .isInstanceOf(LogNotFoundException.class);
+        }
+
+        @Test
+        void throwsException_givenInvalidExerciseCopyId() {
+            when(logRepository.existsById(validLogId)).thenReturn(true);
+            doThrow(new ExerciseCopyNotFoundException(invalidExerciseCopyId))
+                    .when(logService).removeExerciseFromLog(validLogId, invalidExerciseCopyId);
+
+            assertThatThrownBy(() -> exerciseCopyController.deleteExerciseCopy(validLogId, invalidExerciseCopyId))
+                    .isInstanceOf(ExerciseCopyNotFoundException.class);
+        }
+
+        @Test
+        void deletesExerciseCopyAndReturnsNoContent_givenIds() {
+            when(logRepository.existsById(validLogId)).thenReturn(true);
+
+            ResponseEntity<EntityModel<ExerciseCopy>> response = exerciseCopyController.deleteExerciseCopy(validLogId, validExerciseCopyId);
+
+            verify(logService).removeExerciseFromLog(validLogId, validExerciseCopyId);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         }
     }
 }
