@@ -1,0 +1,53 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "WorkoutSummaryDLQ": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {
+        "QueueName": "generate-workout-summary-dlq.fifo",
+        "FifoQueue": true,
+        "ContentBasedDeduplication": true
+      }
+    },
+    "GenerateWorkoutSummaryQueue": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {
+        "QueueName": "generate-workout-summary-queue.fifo",
+        "FifoQueue": true,
+        "ContentBasedDeduplication": true,
+        "RedrivePolicy": {
+          "deadLetterTargetArn": {
+            "Fn::GetAtt": ["WorkoutSummaryDLQ", "Arn"]
+          },
+          "maxReceiveCount": 3
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "QueueName": {
+      "Description": "The name of the queue",
+      "Value": {
+        "Fn::GetAtt": ["GenerateWorkoutSummaryQueue", "QueueName"]
+      }
+    },
+    "QueueURL": {
+      "Description": "The URL of the queue",
+      "Value": {
+        "Ref": "GenerateWorkoutSummaryQueue"
+      }
+    },
+    "QueueARN": {
+      "Description": "The ARN of the queue",
+      "Value": {
+        "Fn::GetAtt": ["GenerateWorkoutSummaryQueue", "Arn"]
+      }
+    },
+    "DLQURL": {
+      "Description": "The URL of the Dead Letter Queue",
+      "Value": {
+        "Ref": "WorkoutSummaryDLQ"
+      }
+    }
+  }
+}
