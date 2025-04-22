@@ -149,7 +149,7 @@ class LogControllerTest {
         when(logService.completeLog(logId)).thenReturn(completedLog);
         when(assembler.toModel(completedLog)).thenReturn(logModel);
 
-        ResponseEntity<EntityModel<Log>> response = logController.completeLog(logId);
+        ResponseEntity<?> response = logController.completeLog(logId);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(Objects.requireNonNull(response.getHeaders().getLocation()).toString()).isEqualTo("/logs/1");

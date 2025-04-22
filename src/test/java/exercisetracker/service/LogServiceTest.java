@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import software.amazon.awssdk.services.sqs.SqsClient;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -29,6 +30,7 @@ public class LogServiceTest {
     private ExerciseTemplateRepository exerciseTemplateRepository;
     private ExerciseCopyRepository exerciseCopyRepository;
     private LogService logService;
+    private SqsClient sqsClient;
 
     @BeforeEach
     void setup() {
@@ -36,7 +38,7 @@ public class LogServiceTest {
         exerciseTemplateRepository = mock(ExerciseTemplateRepository.class);
         exerciseCopyRepository = mock(ExerciseCopyRepository.class);
 
-        logService = new LogService(logRepository, exerciseTemplateRepository, exerciseCopyRepository);
+        logService = new LogService(logRepository, exerciseTemplateRepository, exerciseCopyRepository, sqsClient);
     }
 
     @Test

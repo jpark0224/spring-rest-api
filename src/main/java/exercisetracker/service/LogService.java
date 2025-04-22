@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
+import java.util.UUID;
 
 @Service
 public class LogService {
@@ -20,13 +23,15 @@ public class LogService {
     private final LogRepository logRepository;
     private final ExerciseTemplateRepository exerciseTemplateRepository;
     private final ExerciseCopyRepository exerciseCopyRepository;
+    private final SqsClient sqsClient;
 
     public LogService(LogRepository logRepository,
                       ExerciseTemplateRepository exerciseTemplateRepository,
-                      ExerciseCopyRepository exerciseCopyRepository) {
+                      ExerciseCopyRepository exerciseCopyRepository, SqsClient sqsClient) {
         this.logRepository = logRepository;
         this.exerciseTemplateRepository = exerciseTemplateRepository;
         this.exerciseCopyRepository = exerciseCopyRepository;
+        this.sqsClient = sqsClient;
     }
 
     private Log findLogById(Long logId) {
@@ -76,5 +81,18 @@ public class LogService {
 
         log.removeExerciseCopy(exerciseCopy);
         logRepository.save(log);
+    }
+
+    public void sendLog(String jsonPayload) {
+        String queueUrl = "http://localhost:4566/000000000000/generate-workout-summary-queue.fifo";
+
+        SendMessageRequest request = SendMessageRequest.builder()
+                .queueUrl(queueUrl)
+                .messageBody(jsonPayload)
+                .messageGroupId("summary")
+                .messageDeduplicationId(UUID.randomUUID().toString())
+                .build();
+
+        sqsClient.sendMessage(request);
     }
 }
