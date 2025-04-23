@@ -17,6 +17,7 @@ public class SqsClientConfig {
         AwsBasicCredentials awsCreds = AwsBasicCredentials.create("test", "test");
 
         return SqsClient.builder()
+                .endpointOverride(URI.create("http://localhost:4566"))
                 .region(Region.EU_WEST_1)
                 .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
                 .build();

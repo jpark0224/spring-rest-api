@@ -78,8 +78,10 @@ public class LogController {
 
         try {
             String payload = objectMapper.writeValueAsString(completedLog);
+            System.out.println(payload);
             logService.sendLog(payload);
         } catch (JsonProcessingException e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
