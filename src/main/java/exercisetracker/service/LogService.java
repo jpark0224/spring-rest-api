@@ -84,7 +84,7 @@ public class LogService {
     }
 
     public void sendLog(String jsonPayload) {
-        String queueUrl = "http://localhost:4566/000000000000/generate-workout-summary-queue.fifo";
+        String queueUrl = "http://sqs.eu-west-1.localhost.localstack.cloud:4566/000000000000/generate-workout-summary-queue.fifo";
 
         SendMessageRequest request = SendMessageRequest.builder()
                 .queueUrl(queueUrl)

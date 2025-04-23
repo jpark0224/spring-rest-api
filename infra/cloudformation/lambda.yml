@@ -11,6 +11,8 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
         - PolicyName: LambdaSQSPolicy
           PolicyDocument:
@@ -32,6 +34,8 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
         ZipFile: |
+          import json
+          
           def handler(event, context):
               print("Received event:")
               print(json.dumps(event, indent=2))
