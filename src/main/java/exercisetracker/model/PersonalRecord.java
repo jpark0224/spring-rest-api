@@ -1,13 +1,15 @@
 package exercisetracker.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-public class PersonalRecord extends BaseEntity {
+public class PersonalRecord {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @OneToOne
     @JoinColumn(name = "exercise_template_id", nullable = false)
@@ -65,5 +67,13 @@ public class PersonalRecord extends BaseEntity {
 
     public void setOneRepMax(Double oneRepMax) {
         this.oneRepMax = oneRepMax;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

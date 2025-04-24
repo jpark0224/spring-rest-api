@@ -12,6 +12,10 @@ import jakarta.persistence.*;
 @Entity
 public class ExerciseCopy extends AbstractExercise {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @ManyToOne
     @JsonBackReference
     @JoinColumn(name = "log_id", nullable = false)
@@ -65,5 +69,13 @@ public class ExerciseCopy extends AbstractExercise {
 
     public void setSets(List<Set> sets) {
         this.sets = sets;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

@@ -16,7 +16,11 @@ import jakarta.persistence.*;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Log extends BaseEntity {
+public class Log {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @CreatedDate
     @Column(name = "timestamp", nullable = false, updatable = false)
@@ -86,6 +90,14 @@ public class Log extends BaseEntity {
 
     public void setExerciseCopies(List<ExerciseCopy> exerciseCopies) {
         this.exerciseCopies = exerciseCopies;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void addExerciseCopy(ExerciseCopy exerciseCopy) {

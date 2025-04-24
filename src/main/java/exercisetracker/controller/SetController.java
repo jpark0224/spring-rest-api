@@ -35,11 +35,19 @@ public class SetController {
         this.exerciseCopyRepository = exerciseCopyRepository;
     }
 
+    public Double calculate1RM(int rep, Double weight) {
+        return weight / (1.0278 - ( 0.0278 * rep ));
+    }
+
     public Set createSet(SetDTO setDto, Long exerciseCopyId) {
         ExerciseCopy exerciseCopy = exerciseCopyRepository.findById(exerciseCopyId)
                 .orElseThrow(() -> new ExerciseCopyNotFoundException(exerciseCopyId));
 
-        return new Set(setDto.getReps(), setDto.getWeight(), exerciseCopy);
+        int reps = setDto.getReps();
+        Double weight = setDto.getWeight();
+        Double oneRepMax = calculate1RM(reps, weight);
+
+        return new Set(reps, weight, oneRepMax, exerciseCopy);
     }
 
     @GetMapping
@@ -92,6 +100,7 @@ public class SetController {
                 .map(existingSet -> {
                     existingSet.setReps(setDto.getReps());
                     existingSet.setWeight(setDto.getWeight());
+                    existingSet.setOneRepMax(calculate1RM(setDto.getReps(), setDto.getWeight()));
                     return setRepository.save(existingSet);
                 })
                 .orElseGet(() -> {
