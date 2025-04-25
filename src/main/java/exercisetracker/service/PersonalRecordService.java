@@ -1,10 +1,13 @@
 package exercisetracker.service;
 
+import exercisetracker.exception.ExerciseTemplateNotFoundException;
 import exercisetracker.model.*;
 import exercisetracker.repository.ExerciseTemplateRepository;
 import exercisetracker.repository.PersonalRecordRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -19,43 +22,58 @@ public class PersonalRecordService {
         this.exerciseTemplateRepository = exerciseTemplateRepository;
     }
 
-    public void getPersonalRecord(Log completedLog) {
+    public List<PersonalRecord> getPersonalRecord(Log completedLog) {
+        List<PersonalRecord> updatedPrs = new ArrayList<>();
+
         List<ExerciseCopy> exercises = completedLog.getExerciseCopies();
+        LocalDateTime achievedAt = completedLog.getEndTime();
+
+        if (exercises == null || exercises.isEmpty()) {
+            return updatedPrs;
+        }
 
         for (ExerciseCopy exercise : exercises) {
-            List<Set> sets = exercise.getSets();
-            Set bestSet = null;
-            double orm = 0;
-
-            if (sets != null && !sets.isEmpty()) {
-                bestSet = sets.stream()
-                        .filter(s -> s.getOneRepMax() != null)
-                        .max(Comparator.comparingDouble(Set::getOneRepMax))
-                        .orElse(null);
-                if (bestSet != null) {
-                    orm = bestSet.getOneRepMax();
-                }
-            }
-
-            Long exerciseTemplateId = exercise.getTemplateId();
-
-            PersonalRecord existingPr = prRepository.findByExerciseTemplateId(exercise.getTemplateId());
-            boolean isNewPr = existingPr == null || orm > existingPr.getOneRepMax();
-
-            if (isNewPr && bestSet != null) {
-                PersonalRecord pr = (existingPr != null) ? existingPr : new PersonalRecord();
-
-                ExerciseTemplate template = exerciseTemplateRepository.findById(exerciseTemplateId)
-                        .orElseThrow(() -> new RuntimeException("ExerciseTemplate not found: " + exerciseTemplateId));
-
-                pr.setExerciseTemplate(template);
-                pr.setAchievedAt(completedLog.getEndTime());
-                pr.setWeight(bestSet.getWeight());
-                pr.setReps(bestSet.getReps());
-                pr.setOneRepMax(orm);
-
-                prRepository.save(pr);
+            PersonalRecord pr = processExerciseForPr(exercise, achievedAt);
+            if (pr != null) {
+                updatedPrs.add(pr);
             }
         }
+
+        return updatedPrs;
+    }
+
+    private PersonalRecord processExerciseForPr(ExerciseCopy exercise, LocalDateTime achievedAt) {
+        if (exercise.getSets() == null || exercise.getSets().isEmpty()) return null;
+
+        Long templateId = exercise.getTemplateId();
+        if (templateId == null) return null;
+
+        Set bestSet = exercise.getSets().stream()
+                .filter(s -> s.getOneRepMax() != null)
+                .max(Comparator.comparingDouble(Set::getOneRepMax))
+                .orElse(null);
+
+        if (bestSet == null) return null;
+
+        double bestOrm = bestSet.getOneRepMax();
+
+        PersonalRecord existingPr = prRepository.findByExerciseTemplateId(templateId);
+        if (existingPr != null && bestOrm <= existingPr.getOneRepMax()) {
+            return null;
+        }
+
+        ExerciseTemplate template = exerciseTemplateRepository.findById(templateId)
+                .orElseThrow(() -> new ExerciseTemplateNotFoundException(templateId));
+
+        PersonalRecord pr = new PersonalRecord();
+        pr.setExerciseTemplate(template);
+        pr.setAchievedAt(achievedAt != null ? achievedAt : LocalDateTime.now());
+        pr.setWeight(bestSet.getWeight());
+        pr.setReps(bestSet.getReps());
+        pr.setOneRepMax(bestOrm);
+
+        prRepository.save(pr);
+
+        return pr;
     }
 }
