@@ -84,12 +84,13 @@ public class LogController {
         List<PersonalRecord> prs = personalRecordService.getPrs(completedLog);
 
         try {
-            Map<String, Object> payloadMap = objectMapper.convertValue(
+            ObjectMapper mapper = objectMapper.findAndRegisterModules();
+            Map<String, Object> payloadMap = mapper.convertValue(
                     completedLog,
                     new TypeReference<>() {}
-            );
+            );;
             payloadMap.put("personalRecords", prs);
-            String payload = objectMapper.writeValueAsString(payloadMap);
+            String payload = mapper.writeValueAsString(payloadMap);
             logService.sendLog(payload);
         } catch (JsonProcessingException e) {
             e.printStackTrace();

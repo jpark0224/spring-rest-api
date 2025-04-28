@@ -58,21 +58,27 @@ public class PersonalRecordService {
         double bestOrm = bestSet.getOneRepMax();
 
         PersonalRecord existingPr = prRepository.findByExerciseTemplateId(templateId);
-        if (existingPr != null && bestOrm <= existingPr.getOneRepMax()) {
-            return null;
-        }
 
         ExerciseTemplate template = exerciseTemplateRepository.findById(templateId)
                 .orElseThrow(() -> new ExerciseTemplateNotFoundException(templateId));
 
-        PersonalRecord pr = new PersonalRecord();
-        pr.setExerciseTemplate(template);
-        pr.setAchievedAt(achievedAt != null ? achievedAt : LocalDateTime.now());
-        pr.setWeight(bestSet.getWeight());
-        pr.setReps(bestSet.getReps());
-        pr.setOneRepMax(bestOrm);
+        PersonalRecord pr = null;
 
-        prRepository.save(pr);
+        if (existingPr == null || bestOrm > existingPr.getOneRepMax()) {
+            if (existingPr == null) {
+                pr = new PersonalRecord();
+                pr.setExerciseTemplate(template);
+            } else {
+                pr = existingPr;
+            }
+
+            pr.setAchievedAt(achievedAt);
+            pr.setWeight(bestSet.getWeight());
+            pr.setReps(bestSet.getReps());
+            pr.setOneRepMax(bestOrm);
+
+            prRepository.save(pr);
+        }
 
         return pr;
     }
