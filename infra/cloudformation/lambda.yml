@@ -24,23 +24,16 @@ Resources:
                   - sqs:DeleteMessage
                   - sqs:GetQueueAttributes
                 Resource: "*"
-
   LambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: TestLambda
-      Handler: index.handler
+      Handler: lambda.handler
       Runtime: python3.9
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
-        ZipFile: |
-          import json
-          
-          def handler(event, context):
-              print("Received event:")
-              print(json.dumps(event, indent=2))
-              return {"statusCode": 200, "body": "Processed"}
-
+        S3Bucket: report-bucket
+        S3Key: lambda/function.zip
   SQSTrigger:
     Type: AWS::Lambda::EventSourceMapping
     Properties:

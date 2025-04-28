@@ -22,7 +22,7 @@ public class PersonalRecordService {
         this.exerciseTemplateRepository = exerciseTemplateRepository;
     }
 
-    public List<PersonalRecord> getPersonalRecord(Log completedLog) {
+    public List<PersonalRecord> getPrs(Log completedLog) {
         List<PersonalRecord> updatedPrs = new ArrayList<>();
 
         List<ExerciseCopy> exercises = completedLog.getExerciseCopies();

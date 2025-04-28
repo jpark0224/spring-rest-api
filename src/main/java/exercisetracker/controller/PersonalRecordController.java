@@ -18,12 +18,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 public class PersonalRecordController {
-    private final PersonalRecordService personalRecordService;
+
     private final PersonalRecordRepository personalRecordRepository;
     private final PersonalRecordModelAssembler assembler;
-    public PersonalRecordController(PersonalRecordService personalRecordService, PersonalRecordRepository personalRecordRepository, PersonalRecordModelAssembler assembler) {
+    public PersonalRecordController(PersonalRecordRepository personalRecordRepository, PersonalRecordModelAssembler assembler) {
 
-        this.personalRecordService = personalRecordService;
         this.personalRecordRepository = personalRecordRepository;
         this.assembler = assembler;
     }
@@ -49,16 +48,6 @@ public class PersonalRecordController {
 
         return assembler.toModel(personalRecords);
     }
-
-//    @PostMapping("/personalRecords")
-//    ResponseEntity<EntityModel<PersonalRecord>> postPersonalRecord(@RequestBody PersonalRecord personalRecord) {
-//
-//        PersonalRecord newPersonalRecord = personalRecordService.createPersonalRecord(personalRecord);
-//
-//        return ResponseEntity
-//                .created(linkTo(methodOn(PersonalRecordController.class).getOnePersonalRecord(newPersonalRecord.getId())).toUri())
-//                .body(assembler.toModel(newPersonalRecord));
-//    }
 
     @DeleteMapping("/personalRecords/{id}")
     ResponseEntity<EntityModel<PersonalRecord>> deletePersonalRecord(@PathVariable Long id) {

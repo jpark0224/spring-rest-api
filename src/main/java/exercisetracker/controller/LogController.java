@@ -1,11 +1,14 @@
 package exercisetracker.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import exercisetracker.assembler.LogModelAssembler;
 import exercisetracker.exception.LogNotFoundException;
 import exercisetracker.model.Log;
+import exercisetracker.model.PersonalRecord;
 import exercisetracker.repository.LogRepository;
 import exercisetracker.service.LogService;
+import exercisetracker.service.PersonalRecordService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
@@ -13,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -28,14 +32,16 @@ public class LogController {
     private final LogService logService;
     private final LogRepository logRepository;
     private final LogModelAssembler assembler;
+    private final PersonalRecordService personalRecordService;
     private final SqsClient sqsClient;
     private final ObjectMapper objectMapper;
 
-    public LogController(LogService logService, LogRepository logRepository, LogModelAssembler assembler, SqsClient sqsClient, ObjectMapper objectMapper) {
+    public LogController(LogService logService, LogRepository logRepository, LogModelAssembler assembler, PersonalRecordService personalRecordService, SqsClient sqsClient, ObjectMapper objectMapper) {
 
         this.logService = logService;
         this.logRepository = logRepository;
         this.assembler = assembler;
+        this.personalRecordService = personalRecordService;
         this.sqsClient = sqsClient;
         this.objectMapper = objectMapper;
     }
@@ -75,10 +81,15 @@ public class LogController {
     @PutMapping("/logs/{id}/complete")
     public ResponseEntity<EntityModel<Log>> completeLog(@PathVariable Long id) {
         Log completedLog = logService.completeLog(id);
+        List<PersonalRecord> prs = personalRecordService.getPrs(completedLog);
 
         try {
-            String payload = objectMapper.writeValueAsString(completedLog);
-            System.out.println(payload);
+            Map<String, Object> payloadMap = objectMapper.convertValue(
+                    completedLog,
+                    new TypeReference<>() {}
+            );
+            payloadMap.put("personalRecords", prs);
+            String payload = objectMapper.writeValueAsString(payloadMap);
             logService.sendLog(payload);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
