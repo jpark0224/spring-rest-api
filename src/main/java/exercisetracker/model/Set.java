@@ -9,7 +9,11 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "exercise_set")
-public class Set extends BaseEntity {
+public class Set {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne
     @JsonBackReference
@@ -18,12 +22,14 @@ public class Set extends BaseEntity {
 
     private int reps;
     private Double weight;
+    private Double oneRepMax;
 
     Set() {}
 
-    public Set(int reps, Double weight, ExerciseCopy exerciseCopy) {
+    public Set(int reps, Double weight, Double oneRepMax, ExerciseCopy exerciseCopy) {
         this.reps = reps;
         this.weight = weight;
+        this.oneRepMax = oneRepMax;
         this.exerciseCopy = exerciseCopy;
     }
 
@@ -34,6 +40,8 @@ public class Set extends BaseEntity {
     public Double getWeight() {
         return this.weight;
     }
+
+    public Double getOneRepMax() { return this.oneRepMax; }
 
     public ExerciseCopy getExerciseCopy() {
         return exerciseCopy;
@@ -49,5 +57,15 @@ public class Set extends BaseEntity {
 
     public void setExerciseCopy(ExerciseCopy exerciseCopy) {
         this.exerciseCopy = exerciseCopy;
+    }
+
+    public void setOneRepMax(Double oneRepMax) { this.oneRepMax = oneRepMax; }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

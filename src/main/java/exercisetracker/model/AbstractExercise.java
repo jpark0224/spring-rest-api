@@ -1,10 +1,12 @@
 package exercisetracker.model;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotBlank;
 
 @MappedSuperclass
-public abstract class AbstractExercise extends BaseEntity {
+public abstract class AbstractExercise {
 
     @NotBlank(message = "Name is required")
     private String name;

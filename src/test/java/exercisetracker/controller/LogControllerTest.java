@@ -15,6 +15,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,10 +24,10 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class LogControllerTest {
 
@@ -148,7 +149,7 @@ class LogControllerTest {
         when(logService.completeLog(logId)).thenReturn(completedLog);
         when(assembler.toModel(completedLog)).thenReturn(logModel);
 
-        ResponseEntity<EntityModel<Log>> response = logController.completeLog(logId);
+        ResponseEntity<?> response = logController.completeLog(logId);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(Objects.requireNonNull(response.getHeaders().getLocation()).toString()).isEqualTo("/logs/1");
