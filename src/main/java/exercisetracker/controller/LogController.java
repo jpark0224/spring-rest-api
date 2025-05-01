@@ -92,7 +92,7 @@ public class LogController {
             payloadMap.put("personalRecords", prs);
             String payload = mapper.writeValueAsString(payloadMap);
             logService.sendLog(payload);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
