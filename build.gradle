@@ -17,6 +17,34 @@ repositories {
 	mavenCentral()
 }
 
+sourceSets {
+	integrationTest {
+		java.srcDir 'src/integrationTest/java'
+		resources.srcDir 'src/integrationTest/resources'
+		compileClasspath += sourceSets.main.output + sourceSets.test.output
+		runtimeClasspath += sourceSets.main.output + sourceSets.test.output
+	}
+}
+
+
+configurations {
+	integrationTestImplementation.extendsFrom testImplementation
+	integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+task integrationTest(type: Test) {
+	description = "Run integration tests"
+	group = "verification"
+	testClassesDirs = sourceSets.integrationTest.output.classesDirs
+	classpath = sourceSets.integrationTest.runtimeClasspath
+	useJUnitPlatform()
+	testLogging {
+		events = ["passed", "skipped", "failed"]
+		exceptionFormat = "full"
+		showStandardStreams = true
+	}
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -31,28 +59,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation "org.mockito:mockito-inline:5.2.0"
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	testImplementation 'io.cucumber:cucumber-java:7.14.0'
-	testImplementation 'io.cucumber:cucumber-spring:7.14.0'
-	testImplementation 'io.cucumber:cucumber-junit-platform-engine:7.14.0'
-}
-
-configurations {
-	integrationTestImplementation.extendsFrom testImplementation
-	integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
-}
-
-sourceSets {
-	integrationTest {
-		java {
-			compileClasspath += main.output + test.output
-			runtimeClasspath += main.output + test.output
-		}
-	}
-}
-
-task integrationTest(type: Test) {
-	description = "Run integration tests"
-	group = "verification"
-	testClassesDirs = sourceSets.integrationTest.output.classesDirs
-	classpath = sourceSets.integrationTest.runtimeClasspath
+	testRuntimeOnly 'org.junit.platform:junit-platform-suite-api'
+	integrationTestImplementation 'org.junit.platform:junit-platform-suite-api:1.10.1'
+	integrationTestImplementation 'io.cucumber:cucumber-java:7.14.0'
+	integrationTestImplementation 'io.cucumber:cucumber-spring:7.14.0'
+	integrationTestImplementation 'io.cucumber:cucumber-junit-platform-engine:7.14.0'
 }
