@@ -19,29 +19,37 @@ repositories {
 
 sourceSets {
 	integrationTest {
-		java.srcDir 'src/integrationTest/java'
-		resources.srcDir 'src/integrationTest/resources'
-		compileClasspath += sourceSets.main.output + sourceSets.test.output
-		runtimeClasspath += sourceSets.main.output + sourceSets.test.output
+		java {
+			srcDir file('src/integrationTest/java')
+		}
+		resources {
+			srcDir file('src/integrationTest/resources')
+		}
 	}
 }
-
 
 configurations {
 	integrationTestImplementation.extendsFrom testImplementation
 	integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
 }
 
-task integrationTest(type: Test) {
-	description = "Run integration tests"
-	group = "verification"
+tasks.register('integrationTest', Test) {
+	description = 'Runs integration tests'
+	group = 'verification'
 	testClassesDirs = sourceSets.integrationTest.output.classesDirs
 	classpath = sourceSets.integrationTest.runtimeClasspath
-	useJUnitPlatform()
+	useJUnitPlatform {
+		includeEngines 'cucumber'
+	}
 	testLogging {
-		events = ["passed", "skipped", "failed"]
-		exceptionFormat = "full"
+		events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
 		showStandardStreams = true
+	}
+}
+
+tasks.withType(ProcessResources).configureEach {
+	if (name == "processIntegrationTestResources") {
+		duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	}
 }
 
@@ -60,8 +68,19 @@ dependencies {
 	testImplementation "org.mockito:mockito-inline:5.2.0"
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testRuntimeOnly 'org.junit.platform:junit-platform-suite-api'
-	integrationTestImplementation 'org.junit.platform:junit-platform-suite-api:1.10.1'
 	integrationTestImplementation 'io.cucumber:cucumber-java:7.14.0'
 	integrationTestImplementation 'io.cucumber:cucumber-spring:7.14.0'
 	integrationTestImplementation 'io.cucumber:cucumber-junit-platform-engine:7.14.0'
+	integrationTestImplementation 'org.junit.platform:junit-platform-suite-api:1.10.1'
 }
+
+afterEvaluate {
+	sourceSets.integrationTest.compileClasspath += sourceSets.main.output
+	sourceSets.integrationTest.runtimeClasspath += sourceSets.main.output
+}
+
+gradle.projectsEvaluated {
+	println "integrationTest.java.srcDirs: " + sourceSets.integrationTest.java.srcDirs
+	println "integrationTest.resources.srcDirs: " + sourceSets.integrationTest.resources.srcDirs
+}
+
