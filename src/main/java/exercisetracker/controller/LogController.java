@@ -1,6 +1,5 @@
 package exercisetracker.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import exercisetracker.assembler.LogModelAssembler;
 import exercisetracker.exception.LogNotFoundException;
