@@ -5,11 +5,12 @@
     When the log is completed
     Then the log should have an end time
     And a response entity should be returned
-#
-#  Scenario: Completing a log with new personal records saves them
-#    Given a log exists with sets that achieve new personal records
-#    When the log is completed
-#    Then the personal records should be saved to the database
+
+  Scenario: Completing a log with new personal records saves them
+    Given a log exists in the repository
+    And the log has sets with new personal records
+    When the log is completed
+    Then the personal records should be saved to the database
 #
 #  Scenario: Completing a log without personal records does not save them
 #    Given a log exists in the repository
