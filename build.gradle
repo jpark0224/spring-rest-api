@@ -17,6 +17,42 @@ repositories {
 	mavenCentral()
 }
 
+sourceSets {
+	integrationTest {
+		java {
+			srcDir file('src/integrationTest/java')
+		}
+		resources {
+			srcDir file('src/integrationTest/resources')
+		}
+	}
+}
+
+configurations {
+	integrationTestImplementation.extendsFrom testImplementation
+	integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+tasks.register('integrationTest', Test) {
+	description = 'Runs integration tests'
+	group = 'verification'
+	testClassesDirs = sourceSets.integrationTest.output.classesDirs
+	classpath = sourceSets.integrationTest.runtimeClasspath
+	useJUnitPlatform {
+		includeEngines 'cucumber'
+	}
+	testLogging {
+		events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+		showStandardStreams = true
+	}
+}
+
+tasks.withType(ProcessResources).configureEach {
+	if (name == "processIntegrationTestResources") {
+		duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	}
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -31,14 +67,20 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation "org.mockito:mockito-inline:5.2.0"
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testRuntimeOnly 'org.junit.platform:junit-platform-suite-api'
+	integrationTestImplementation 'io.cucumber:cucumber-java:7.14.0'
+	integrationTestImplementation 'io.cucumber:cucumber-spring:7.14.0'
+	integrationTestImplementation 'io.cucumber:cucumber-junit-platform-engine:7.14.0'
+	integrationTestImplementation 'org.junit.platform:junit-platform-suite-api:1.10.1'
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
+afterEvaluate {
+	sourceSets.integrationTest.compileClasspath += sourceSets.main.output
+	sourceSets.integrationTest.runtimeClasspath += sourceSets.main.output
 }
 
-test {
-	testLogging {
-		events "passed", "skipped", "failed"
-	}
+gradle.projectsEvaluated {
+	println "integrationTest.java.srcDirs: " + sourceSets.integrationTest.java.srcDirs
+	println "integrationTest.resources.srcDirs: " + sourceSets.integrationTest.resources.srcDirs
 }
+
