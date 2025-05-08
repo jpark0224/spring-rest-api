@@ -59,7 +59,7 @@ public class ExerciseTemplateController {
 
         ExerciseTemplate newExerciseTemplate = exerciseTemplateRepository.save(exerciseTemplate);
 
-        return ResponseEntity //
+        return ResponseEntity
                 .created(linkTo(methodOn(ExerciseTemplateController.class).getOneExerciseTemplate(newExerciseTemplate.getId())).toUri()) //
                 .body(assembler.toModel(newExerciseTemplate));
     }

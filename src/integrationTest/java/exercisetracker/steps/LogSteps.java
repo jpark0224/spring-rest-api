@@ -1,10 +1,12 @@
 package exercisetracker.steps;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import exercisetracker.model.*;
 import exercisetracker.repository.*;
 import exercisetracker.service.LogService;
 import io.cucumber.java.Before;
-import io.cucumber.java.an.E;
 import io.cucumber.java.en.*;
 import io.cucumber.spring.CucumberContextConfiguration;
 import io.cucumber.spring.ScenarioScope;
@@ -12,10 +14,16 @@ import jakarta.transaction.Transactional;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
+import software.amazon.awssdk.services.sqs.model.Message;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
 
 import java.time.LocalDateTime;
 
@@ -52,6 +60,11 @@ public class LogSteps {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Autowired
+    private SqsClient sqsClient;
+
+    private final String queueName = "generate-workout-summary-queue.fifo";
+
     private final Long invalidId = 999L;
     private final Double oneRepMax = 15.0;
     private Log savedLog;
@@ -68,6 +81,7 @@ public class LogSteps {
     @Given("a log exists in the repository")
     public void a_log_exists() {
         Log log = new Log();
+        log.setName("test");
         log.setTimestamp(LocalDateTime.now());
         savedLog = logRepository.save(log);
     }
@@ -108,5 +122,45 @@ public class LogSteps {
         PersonalRecord personalRecord = personalRecordRepository.findByExerciseTemplateId(savedTemplate.getId());
         assertThat(personalRecord).isNotNull();
         assertThat(personalRecord.getOneRepMax()).isEqualTo(oneRepMax);
+    }
+
+    @And("no sets in the log achieve a new personal record")
+    public void no_sets_in_the_log_achieve_a_new_personal_record() {
+        ExerciseTemplate template = new ExerciseTemplate("barbell squat", "hamstrings");
+        savedTemplate = exerciseTemplateRepository.save(template);
+        ExerciseCopy exerciseCopy = new ExerciseCopy(savedTemplate, savedLog);
+        ExerciseCopy savedCopy = exerciseCopyRepository.save(exerciseCopy);
+        Set set = new Set(12, 10.0, null, savedCopy);
+        Set savedSet = setRepository.save(set);
+        savedCopy.addSet(savedSet);
+        savedLog.addExerciseCopy(savedCopy);
+    }
+
+    @Then("no personal records should be saved")
+    public void no_personal_records_should_be_saved() {
+        PersonalRecord personalRecord = personalRecordRepository.findByExerciseTemplateId(savedTemplate.getId());
+        assertThat(personalRecord).isNull();
+    }
+
+    @Then("a message should be sent to the SQS queue")
+    public void a_message_should_be_sent_to_the_sqs_queue() throws JsonProcessingException {
+        String queueUrl = sqsClient.getQueueUrl(GetQueueUrlRequest.builder()
+                .queueName(queueName)
+                .build()).queueUrl();
+
+        ReceiveMessageResponse response = sqsClient.receiveMessage(ReceiveMessageRequest.builder()
+                .queueUrl(queueUrl)
+                .maxNumberOfMessages(1)
+                .waitTimeSeconds(5)
+                .build());
+
+        assertThat(response.messages()).isNotEmpty();
+
+        Message message = response.messages().getFirst();
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode json = mapper.readTree(message.body());
+
+        assertThat(json.get("name").asText()).isEqualTo(savedLog.getName());
     }
 }

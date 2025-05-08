@@ -11,18 +11,18 @@
     And the log has sets with new personal records
     When the log is completed
     Then the personal records should be saved to the database
-#
-#  Scenario: Completing a log without personal records does not save them
-#    Given a log exists in the repository
-#    And no sets in the log achieve a new personal record
-#    When the log is completed
-#    Then no personal records should be saved
+
+  Scenario: Completing a log without personal records does not save them
+    Given a log exists in the repository
+    And no sets in the log achieve a new personal record
+    When the log is completed
+    Then no personal records should be saved
 #    And the workout summary should not include a personal records section
-#
-#  Scenario: Completing a log sends a message to the SQS queue
-#    Given a log exists in the repository
-#    When the log is completed
-#    Then a message should be sent to the SQS queue
+
+  Scenario: Completing a log sends a message to the SQS queue
+    Given a log exists in the repository
+    When the log is completed
+    Then a message should be sent to the SQS queue
 #
 #  Scenario: Completing a log triggers the lambda function via SQS
 #    Given a log exists in the repository
