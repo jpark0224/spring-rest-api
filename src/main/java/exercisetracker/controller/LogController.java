@@ -1,6 +1,5 @@
 package exercisetracker.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import exercisetracker.assembler.LogModelAssembler;
 import exercisetracker.exception.LogNotFoundException;
@@ -92,7 +91,7 @@ public class LogController {
             payloadMap.put("personalRecords", prs);
             String payload = mapper.writeValueAsString(payloadMap);
             logService.sendLog(payload);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
